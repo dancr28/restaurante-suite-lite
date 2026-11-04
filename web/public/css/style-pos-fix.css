@@ -1,0 +1,25 @@
+@media (min-width: 900px) {
+  #vista-comandero {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    height: calc(100vh - 52px);
+    overflow: hidden;
+  }
+  .comanda-panel-right {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-left: 1px solid #333;
+    background: #18191d;
+  }
+  #ticket-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+  }
+  .comanda-actions-bottom {
+    padding: 12px;
+    background: #1e1f24;
+    border-top: 1px solid #333;
+  }
+}

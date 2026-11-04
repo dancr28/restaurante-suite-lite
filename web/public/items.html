@@ -1,0 +1,1507 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <script src="/js/session.js"></script>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Catálogo de Artículos - Los Compadres</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .items-wrapper {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 12px 14px 40px 14px;
+        box-sizing: border-box;
+      }
+      .tabs-catalog {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 14px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .tabs-catalog::-webkit-scrollbar {
+        display: none;
+      }
+      .catalog-section {
+        display: none;
+      }
+      .catalog-section.active {
+        display: block;
+      }
+      .section-subbox {
+        background: #16171c;
+        border: 1px solid #282a36;
+        border-radius: 10px;
+        padding: 12px;
+        margin-top: 10px;
+      }
+      .catalog-header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .item-list-entry {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #18191f;
+        border: 1px solid #282a36;
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 6px;
+        transition: background 0.12s ease;
+        gap: 8px;
+      }
+      .item-list-entry:hover {
+        background: #1e202b;
+      }
+      .badge-cat-tag {
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 6px;
+        color: #fff;
+      }
+      .badge-stock-pill {
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #252838;
+        color: #a8c7fa;
+      }
+    </style>
+    <link rel="stylesheet" href="/css/runtime-settings.css?v=4" />
+    <script src="/js/runtime-settings.js?v=4" defer></script>
+  
+    <style>
+      .availability-switch{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;color:#f2b8b5;font-size:.72rem;font-weight:700}.availability-switch input{position:absolute;opacity:0;pointer-events:none}.availability-track{width:40px;height:22px;border-radius:999px;background:#444b5d;position:relative;transition:.18s;flex:0 0 auto}.availability-thumb{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;left:3px;top:3px;transition:.18s}.availability-switch.is-on{color:#81c995}.availability-switch.is-on .availability-track{background:#1e88e5}.availability-switch.is-on .availability-thumb{transform:translateX(18px)}.availability-switch input:focus-visible + .availability-track{outline:2px solid #a8c7fa;outline-offset:2px}.availability-switch input:disabled + .availability-track{opacity:.55}
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <div style="display: flex; align-items: center; gap: 8px">
+        <button class="icon-btn" onclick="toggleSidebarGlobal()">
+          <span class="material-icons-round">menu</span>
+        </button>
+        <span style="font-weight: 700; font-size: 1.05rem; color: #a8c7fa"
+          >Catálogo de Artículos</span
+        >
+      </div>
+      <a
+        href="/api/items/exportar-csv"
+        class="cat-btn"
+        style="background: #20222a; color: #fff; text-decoration: none"
+      >
+        <span class="material-icons-round" style="font-size: 16px; margin-right: 4px"
+          >download</span
+        >
+        CSV
+      </a>
+    </div>
+
+    <div class="scrollable-page">
+      <div class="items-wrapper">
+        <div class="tabs-catalog">
+          <button class="cat-btn active" onclick="cambiarPestana('articulos', this)">
+            Artículos
+          </button>
+          <button class="cat-btn" onclick="cambiarPestana('categorias', this)">Categorías</button>
+          <button class="cat-btn" onclick="cambiarPestana('modificadores', this)">
+            Modificadores
+          </button>
+          <button class="cat-btn" onclick="cambiarPestana('descuentos', this)">Descuentos</button>
+          <button class="cat-btn" onclick="cambiarPestana('disponibilidad', this)">Disponibilidad</button>
+          <button class="cat-btn" onclick="cambiarPestana('insumos', this)">
+            Insumos y Recetas
+          </button>
+        </div>
+
+        <!-- 1. ARTÍCULOS -->
+        <div id="sec-articulos" class="catalog-section active">
+          <div class="catalog-header-bar">
+            <input
+              type="text"
+              id="buscar-articulo"
+              class="input-field"
+              placeholder="Buscar platillo por nombre..."
+              oninput="filtrarArticulos()"
+              style="flex: 1; max-width: 320px; margin: 0"
+            />
+            <button
+              class="md-btn md-btn-primary"
+              style="width: auto; background: #1e88e5; padding: 8px 16px"
+              onclick="abrirModalProducto()"
+            >
+              + Nuevo Artículo
+            </button>
+          </div>
+          <div id="lista-articulos-container">
+            <div style="text-align: center; color: #888; padding: 20px">Cargando artículos...</div>
+          </div>
+        </div>
+
+        <!-- 2. CATEGORÍAS -->
+        <div id="sec-categorias" class="catalog-section">
+          <div class="catalog-header-bar">
+            <h3 style="margin: 0; color: #a8c7fa">Categorías del Menú</h3>
+            <button
+              class="cat-btn"
+              style="background: #1e88e5; color: #fff"
+              onclick="abrirModalNuevaCategoria()"
+            >
+              + Nueva Categoría
+            </button>
+          </div>
+          <div id="lista-categorias-container">
+            <div style="text-align: center; color: #888; padding: 20px">Cargando categorías...</div>
+          </div>
+        </div>
+
+        <!-- 3. MODIFICADORES -->
+        <div id="sec-modificadores" class="catalog-section">
+          <div class="catalog-header-bar">
+            <h3 style="margin: 0; color: #a8c7fa">Grupos de Modificadores</h3>
+            <button
+              class="cat-btn"
+              style="background: #1e88e5; color: #fff"
+              onclick="abrirModalGrupoModCompleto()"
+            >
+              + Nuevo Grupo
+            </button>
+          </div>
+          <div id="lista-grupos-modificadores">Cargando modificadores...</div>
+        </div>
+
+        <!-- 4. DESCUENTOS -->
+        <div id="sec-descuentos" class="catalog-section">
+          <div class="catalog-header-bar">
+            <h3 style="margin: 0; color: #a8c7fa">Descuentos</h3>
+            <button
+              class="cat-btn"
+              style="background: #1e88e5; color: #fff"
+              onclick="abrirModalNuevoDescuento()"
+            >
+              + Nuevo Descuento
+            </button>
+          </div>
+          <div class="card-panel table-responsive-container">
+            <table class="table-custom">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tipo</th>
+                  <th>Valor</th>
+                  <th>Seguridad</th>
+                  <th style="text-align: right">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-descuentos-body">
+                <tr>
+                  <td colspan="5" style="text-align: center; color: #888; padding: 16px">
+                    Cargando descuentos...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+        <!-- 5. DISPONIBILIDAD -->
+        <div id="sec-disponibilidad" class="catalog-section">
+          <div class="catalog-header-bar">
+            <div><h3 style="margin:0;color:#a8c7fa">Disponibilidad por servicio</h3>
+            <div style="font-size:.82rem;color:#999">Comedor, Para llevar y Domicilio.</div></div>
+            <input id="buscar-disponibilidad" class="input-field" placeholder="Buscar articulo..." oninput="renderDisponibilidad()" style="flex:1;max-width:320px;margin:0">
+          </div>
+          <div class="card-panel table-responsive-container"><table class="table-custom" style="min-width:720px">
+            <thead><tr><th>Articulo</th><th>Comedor</th><th>Para llevar</th><th>Domicilio</th><th>Variantes</th><th style="text-align:right">Accion</th></tr></thead>
+            <tbody id="tabla-disponibilidad-body"></tbody>
+          </table></div>
+        </div>
+
+        <!-- 6. INSUMOS -->
+
+        <div id="sec-insumos" class="catalog-section">
+          <div class="catalog-header-bar">
+            <h3 style="margin: 0; color: #a8c7fa">Insumos (Descuento por Pieza / Unidad)</h3>
+            <button
+              class="cat-btn"
+              style="background: #1e88e5; color: #fff"
+              onclick="abrirModalInsumo()"
+            >
+              + Nuevo Insumo
+            </button>
+          </div>
+          <div id="lista-insumos-container">
+            <div style="text-align: center; color: #888; padding: 20px">Cargando insumos...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- MODAL DISPONIBILIDAD -->
+    <div class="modal-overlay" id="modal-disponibilidad">
+      <div class="modal-box" style="max-width:720px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><h3 style="margin:0;color:#a8c7fa">Disponibilidad por servicio</h3><div id="disp-producto-nombre" style="color:#aaa"></div></div>
+          <button class="icon-btn" onclick="cerrarModalDisponibilidad()"><span class="material-icons-round">close</span></button>
+        </div>
+        <input type="hidden" id="disp-producto-id">
+        <div class="section-subbox"><b>Articulo</b><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
+          <label><input id="disp-comedor" type="checkbox"> Comedor</label>
+          <label><input id="disp-llevar" type="checkbox"> Para llevar</label>
+          <label><input id="disp-delivery" type="checkbox"> Domicilio</label>
+        </div></div>
+        <div id="disp-variantes-box" class="section-subbox"><b>Variantes / Porciones</b><div style="font-size:.78rem;color:#999">Heredar usa la regla del articulo.</div><div id="disp-variantes-lista"></div></div>
+        <button class="md-btn md-btn-primary" style="margin-top:14px;background:#1e88e5" onclick="guardarDisponibilidadServicio()">Guardar disponibilidad</button>
+      </div>
+    </div>
+
+    <!-- MODAL PRODUCTO -->
+    <div class="modal-overlay" id="modal-prod">
+      <div class="modal-box" style="max-width: 600px">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+          "
+        >
+          <h3 id="modal-prod-titulo" style="margin: 0; color: #a8c7fa">Artículo</h3>
+          <button
+            class="icon-btn"
+            onclick="document.getElementById('modal-prod').style.display = 'none'"
+          >
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <input type="hidden" id="prod-edit-id" />
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px">
+          <div>
+            <label style="font-size: 0.8rem; color: #aaa">Nombre del Platillo:</label>
+            <input
+              type="text"
+              id="prod-nombre"
+              class="input-field"
+              placeholder="Ej: Lonche de Pierna"
+            />
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: #aaa">Categoría:</label>
+            <select id="prod-categoria-select" class="input-field"></select>
+          </div>
+        </div>
+
+        <div style="margin-top: 8px">
+          <label style="font-size: 0.8rem; color: #aaa"
+            >Precio de Venta ($):
+            <span style="color: #a8c7fa; font-size: 0.75rem"
+              >(Dejar en $0.00 para Precio Variable)</span
+            ></label
+          >
+          <input type="number" id="prod-precio" class="input-field" step="any" placeholder="0.00" />
+        </div>
+
+        <div
+          style="
+            display: flex;
+            gap: 16px;
+            margin: 12px 0 6px 0;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+          "
+        >
+          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer">
+            <input type="checkbox" id="prod-disponible-venta" checked /> Disponible para Venta
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer">
+            <input type="checkbox" id="prod-seguimiento" onchange="toggleStockFields()" /> Control
+            de Stock Directo
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer">
+            <input type="checkbox" id="prod-es-compuesto" onchange="toggleRecetaFields()" />
+            Descontar Insumos (Birotes / Totopos)
+          </label>
+        </div>
+
+        <div
+          id="stock-field-box"
+          style="display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px"
+        >
+          <div>
+            <label style="font-size: 0.8rem; color: #aaa">Stock Actual:</label>
+            <input type="number" id="prod-stock-act" class="input-field" step="any" value="0" />
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: #aaa">Stock Mínimo:</label>
+            <input type="number" id="prod-stock-min" class="input-field" step="any" value="0" />
+          </div>
+        </div>
+
+        <div class="section-subbox">
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #a8c7fa"
+              >Variantes / Porciones:</span
+            >
+            <button
+              class="cat-btn"
+              style="padding: 2px 8px; font-size: 0.75rem"
+              onclick="agregarFilaVariante()"
+            >
+              + Variante
+            </button>
+          </div>
+          <div id="variantes-items-box"></div>
+        </div>
+
+        <div id="receta-field-box" class="section-subbox" style="display: none">
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #6dd58c"
+              >Insumos a descontar por orden (Ej: 1 Birote / 0.5 Totopos):</span
+            >
+            <button
+              class="cat-btn"
+              style="padding: 2px 8px; font-size: 0.75rem"
+              onclick="agregarFilaReceta()"
+            >
+              + Insumo
+            </button>
+          </div>
+          <div id="receta-items-box"></div>
+        </div>
+
+        <div class="section-subbox">
+          <span
+            style="
+              font-size: 0.85rem;
+              font-weight: 700;
+              color: #a8c7fa;
+              display: block;
+              margin-bottom: 6px;
+            "
+            >Modificadores Disponibles:</span
+          >
+          <div
+            id="modificadores-check-box"
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+              gap: 6px;
+            "
+          ></div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 16px">
+          <button
+            class="md-btn md-btn-primary"
+            style="flex: 1; background: #1e88e5"
+            onclick="guardarProductoCompleto()"
+          >
+            Guardar Artículo
+          </button>
+          <button
+            class="md-btn md-btn-outlined"
+            onclick="document.getElementById('modal-prod').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CATEGORÍA -->
+    <div class="modal-overlay" id="modal-cat">
+      <div class="modal-box" style="max-width: 440px">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+          "
+        >
+          <h3 id="modal-cat-titulo" style="margin: 0; color: #a8c7fa">Nueva Categoría</h3>
+          <button
+            class="icon-btn"
+            onclick="document.getElementById('modal-cat').style.display = 'none'"
+          >
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <input type="hidden" id="cat-edit-id" />
+        <label style="font-size: 0.8rem; color: #aaa">Nombre de la Categoría:</label>
+        <input
+          type="text"
+          id="cat-nombre-input"
+          class="input-field"
+          placeholder="Ej: Lonches / Bebidas"
+        />
+        <label style="font-size: 0.8rem; color: #aaa; margin-top: 8px; display: block"
+          >Color Identificador:</label
+        >
+        <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px">
+          <input
+            type="color"
+            id="cat-color-picker"
+            value="#1E88E5"
+            style="width: 44px; height: 40px; border: none; border-radius: 6px; cursor: pointer"
+          />
+          <input
+            type="text"
+            id="cat-color-text"
+            class="input-field"
+            value="#1E88E5"
+            style="flex: 1"
+          />
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 16px">
+          <button class="md-btn md-btn-primary" style="flex: 1" onclick="guardarCategoria()">
+            Guardar Categoría
+          </button>
+          <button
+            class="md-btn md-btn-outlined"
+            onclick="document.getElementById('modal-cat').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL GRUPO MODIFICADORES -->
+    <div class="modal-overlay" id="modal-grupo-mod-completo">
+      <div class="modal-box" style="max-width: 560px">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+          "
+        >
+          <h3 id="modal-gmod-titulo" style="margin: 0; color: #a8c7fa">Grupo de Modificadores</h3>
+          <button
+            class="icon-btn"
+            onclick="document.getElementById('modal-grupo-mod-completo').style.display = 'none'"
+          >
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <input type="hidden" id="gmod-edit-id" />
+        <label style="font-size: 0.8rem; color: #aaa"
+          >Nombre del Grupo (Ej: Salsas / Extras):</label
+        >
+        <input type="text" id="gmod-c-nombre" class="input-field" placeholder="Nombre del grupo" />
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 10px 0;
+            font-size: 0.85rem;
+            cursor: pointer;
+          "
+        >
+          <input type="checkbox" id="gmod-c-obligatorio" /> Selección Obligatoria
+        </label>
+        <div class="section-subbox">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 8px;
+            "
+          >
+            <span style="font-size: 0.85rem; font-weight: 700; color: #a8c7fa"
+              >Opciones / Extras:</span
+            >
+            <button
+              class="cat-btn"
+              style="padding: 2px 8px; font-size: 0.75rem"
+              onclick="agregarFilaOpcionMod()"
+            >
+              + Opción
+            </button>
+          </div>
+          <div id="gmod-opciones-container"></div>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 16px">
+          <button class="md-btn md-btn-primary" style="flex: 1" onclick="guardarGrupoModCompleto()">
+            Guardar Grupo
+          </button>
+          <button
+            class="md-btn md-btn-outlined"
+            onclick="document.getElementById('modal-grupo-mod-completo').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DESCUENTO -->
+    <div class="modal-overlay" id="modal-desc">
+      <div class="modal-box" style="max-width: 440px">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+          "
+        >
+          <h3 style="margin: 0; color: #a8c7fa">Nuevo Descuento</h3>
+          <button
+            class="icon-btn"
+            onclick="document.getElementById('modal-desc').style.display = 'none'"
+          >
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <label style="font-size: 0.8rem; color: #aaa">Nombre:</label>
+        <input
+          type="text"
+          id="desc-nombre-input"
+          class="input-field"
+          placeholder="Ej: Descuento Empleado"
+        />
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px">
+          <div>
+            <label style="font-size: 0.8rem; color: #aaa">Tipo:</label>
+            <select id="desc-tipo-select" class="input-field">
+              <option value="porcentaje">Porcentual (%)</option>
+              <option value="fijo">Monto Fijo ($)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: #aaa">Valor:</label>
+            <input
+              type="number"
+              id="desc-valor-input"
+              class="input-field"
+              placeholder="10"
+              step="any"
+            />
+          </div>
+        </div>
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 14px 0 6px 0;
+            font-size: 0.85rem;
+            cursor: pointer;
+          "
+        >
+          <input type="checkbox" id="desc-pin-admin" /> Requiere PIN de Administrador
+        </label>
+        <div style="display: flex; gap: 8px; margin-top: 16px">
+          <button class="md-btn md-btn-primary" style="flex: 1" onclick="guardarDescuento()">
+            Guardar Descuento
+          </button>
+          <button
+            class="md-btn md-btn-outlined"
+            onclick="document.getElementById('modal-desc').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL INSUMO -->
+    <div class="modal-overlay" id="modal-insumo">
+      <div class="modal-box" style="max-width: 440px">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+          "
+        >
+          <h3 id="modal-ins-titulo" style="margin: 0; color: #a8c7fa">Nuevo Insumo</h3>
+          <button
+            class="icon-btn"
+            onclick="document.getElementById('modal-insumo').style.display = 'none'"
+          >
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <input type="hidden" id="ins-edit-id" />
+        <label style="font-size: 0.8rem; color: #aaa">Nombre del Insumo:</label>
+        <input
+          type="text"
+          id="ins-nombre"
+          class="input-field"
+          placeholder="Ej: Birote / Totopos / Tortilla"
+        />
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px">
+          <div>
+            <label style="font-size: 0.8rem; color: #aaa">Unidad:</label>
+            <select id="ins-unidad" class="input-field">
+              <option value="pza">Pieza (1 U)</option>
+              <option value="kg">Kg</option>
+              <option value="g">Gramos</option>
+              <option value="l">Litros</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: #aaa">Stock Disponible:</label>
+            <input type="number" id="ins-stock" class="input-field" step="any" value="0" />
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 16px">
+          <button class="md-btn md-btn-primary" style="flex: 1" onclick="guardarInsumo()">
+            Guardar Insumo
+          </button>
+          <button
+            class="md-btn md-btn-outlined"
+            onclick="document.getElementById('modal-insumo').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/sidebar.js"></script>
+    <script>
+      let productosCache = [];
+      let categoriasCache = [];
+      let modificadoresCache = [];
+      let descuentosCache = [];
+      let insumosCache = [];
+
+      function cambiarPestana(id, btn) {
+        document
+          .querySelectorAll('.tabs-catalog .cat-btn')
+          .forEach((b) => b.classList.remove('active'));
+        document.querySelectorAll('.catalog-section').forEach((s) => s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`sec-${id}`).classList.add('active');
+      }
+
+      async function cargarTodo() {
+        await Promise.allSettled([
+          cargarCategorias(),
+          cargarModificadores(),
+          cargarInsumos(),
+          cargarDescuentos(),
+          cargarProductos(),
+        ]);
+      }
+
+      async function cargarProductos() {
+        try {
+          const res = await fetch('/api/items/productos');
+          productosCache = await res.json();
+          renderProductos(productosCache);
+          renderDisponibilidad();
+        } catch (e) {
+          console.error('Error cargando productos:', e);
+        }
+      }
+
+      function renderProductos(lista) {
+        const cont = document.getElementById('lista-articulos-container');
+        cont.innerHTML = '';
+        if (!lista || lista.length === 0) {
+          cont.innerHTML =
+            '<div style="text-align:center; color:#888; padding:20px;">No hay productos registrados.</div>';
+          return;
+        }
+
+        lista.forEach((p) => {
+          const catColor = p.categoria_color || '#333';
+          const catNombre = p.categoria_nombre || 'General';
+          const stockTxt = p.seguimiento_stock ? `${p.stock_actual} uds` : '∞';
+          const estaDisponible = p.disponible_venta === 1;
+          const precioDisplay =
+            parseFloat(p.precio) === 0 ? 'Variable' : `$${Number(p.precio).toFixed(2)}`;
+
+          let variantesBadges = '';
+          if (p.variantes && p.variantes.length > 0) {
+            variantesBadges =
+              '<div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:4px;">';
+            p.variantes.forEach((v) => {
+              const vDisp = v.disponible === 1;
+              variantesBadges += `
+              <span class="cat-btn" style="padding:2px 6px; font-size:0.7rem; background:${vDisp ? '#20222a' : '#5c1d1d'}; color:${vDisp ? '#A8C7FA' : '#F2B8B5'}; border-color:${vDisp ? '#333' : '#E53935'}; cursor:pointer;" onclick="toggleDisponibilidadVarianteDirecta(${v.id})" title="Clic para alternar disponibilidad">
+                ${v.nombre} ($${Number(v.precio).toFixed(2)}) ${!vDisp ? '⛔' : ''}
+              </span>
+            `;
+            });
+            variantesBadges += '</div>';
+          }
+
+          cont.innerHTML += `
+          <div class="item-list-entry" style="${!estaDisponible ? 'opacity:0.65; border-color:#d32f2f;' : ''}">
+            <div style="display:flex; align-items:center; gap:10px; flex:1;">
+              <div>
+                <strong style="color:#fff; font-size:0.95rem;">${p.nombre}</strong>
+                <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+                  <span class="badge-cat-tag" style="background:${catColor};">${catNombre}</span>
+                  <span class="badge-stock-pill">${stockTxt}</span>
+                  ${p.es_compuesto ? '<span style="color:#6DD58C; font-size:0.75rem;">• Insumos</span>' : ''}
+                  ${!estaDisponible ? '<span style="color:#F2B8B5; font-size:0.75rem; font-weight:700;">• AGOTADO</span>' : ''}
+                </div>
+                ${variantesBadges}
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="color:#6DD58C; font-weight:900; font-size:1.05rem;">${precioDisplay}</span>
+              
+              <button class="cat-btn" style="padding:4px 10px; font-size:0.75rem; background:${estaDisponible ? '#2e7d32' : '#c62828'}; color:#fff; font-weight:700;" onclick="toggleDisponibilidadProducto(${p.id})">
+                ${estaDisponible ? 'Disponible' : 'Agotado'}
+              </button>
+
+              <button class="cat-btn" style="padding:4px 10px; font-size:0.8rem;" onclick="abrirModalProducto(${p.id})">Editar</button>
+              <button class="icon-btn" style="color:#F2B8B5; padding:2px;" onclick="eliminarProducto(${p.id})"><span class="material-icons-round" style="font-size:18px;">delete</span></button>
+            </div>
+          </div>
+        `;
+        });
+      }
+
+      async function toggleDisponibilidadProducto(id) {
+        try {
+          const res = await fetch(`/api/items/productos/${id}/toggle-disponibilidad`, {
+            method: 'PATCH',
+          });
+          if (res.ok) cargarProductos();
+        } catch (e) {}
+      }
+
+      async function toggleDisponibilidadVarianteDirecta(vId) {
+        try {
+          const res = await fetch(`/api/items/variantes/${vId}/toggle-disponibilidad`, {
+            method: 'PATCH',
+          });
+          if (res.ok) cargarProductos();
+        } catch (e) {}
+      }
+
+      async function toggleDisponibilidadOpcionModDirecta(opcId) {
+        try {
+          const res = await fetch(
+            `/api/items/modificadores/opciones/${opcId}/toggle-disponibilidad`,
+            { method: 'PATCH' },
+          );
+          if (res.ok) cargarModificadores();
+        } catch (e) {}
+      }
+
+      async function cargarCategorias() {
+        try {
+          const res = await fetch('/api/items/categorias');
+          categoriasCache = await res.json();
+          const cont = document.getElementById('lista-categorias-container');
+          cont.innerHTML = '';
+          if (!categoriasCache || categoriasCache.length === 0) {
+            cont.innerHTML =
+              '<div style="text-align:center; color:#888; padding:20px;">No hay categorías registradas.</div>';
+            return;
+          }
+          categoriasCache.forEach((c) => {
+            const conteo = Number(c.articulos ?? productosCache.filter((p) => Number(p.categoria_id) === Number(c.id)).length);
+            cont.innerHTML += `
+            <div class="item-list-entry">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:${c.color};"></span>
+                <strong style="color:#A8C7FA; font-size:0.95rem;">${c.nombre}</strong>
+                <span style="font-size:0.75rem; color:#888;">(${conteo} artículos)</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="cat-btn" style="padding:4px 10px; font-size:0.8rem;" onclick="abrirModalEditarCategoria(${c.id})">Editar</button>
+                <button class="icon-btn" style="color:#F2B8B5;" onclick="eliminarCategoria(${c.id})"><span class="material-icons-round">delete</span></button>
+              </div>
+            </div>
+          `;
+          });
+        } catch (e) {
+          console.error('Error cargando categorías:', e);
+        }
+      }
+
+      async function cargarModificadores() {
+        try {
+          const res = await fetch('/api/items/modificadores');
+          modificadoresCache = await res.json();
+          const cont = document.getElementById('lista-grupos-modificadores');
+          cont.innerHTML = '';
+
+          if (!modificadoresCache || modificadoresCache.length === 0) {
+            cont.innerHTML =
+              '<div style="color:#888; text-align:center; padding:16px;">No hay grupos de modificadores registrados.</div>';
+            return;
+          }
+
+          modificadoresCache.forEach((g) => {
+            let opcsHtml = '';
+            (g.opciones || []).forEach((o) => {
+              const oDisp = o.disponible === 1;
+              opcsHtml += `
+              <span class="cat-btn" style="padding:4px 10px; font-size:0.8rem; margin:2px; background:${oDisp ? '#20222a' : '#5c1d1d'}; color:${oDisp ? '#fff' : '#F2B8B5'}; border-color:${oDisp ? '#333' : '#E53935'}; cursor:pointer;" onclick="toggleDisponibilidadOpcionModDirecta(${o.id})" title="Clic para marcar Disponible/Agotado">
+                ${o.nombre} (+$${Number(o.precio_extra).toFixed(2)}) ${!oDisp ? '⛔ AGOTADO' : ''}
+              </span>
+            `;
+            });
+
+            cont.innerHTML += `
+            <div class="card-panel" style="margin-bottom:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <strong style="color:#A8C7FA; font-size:1rem;">${g.nombre}</strong>
+                  ${g.obligatorio ? '<span class="cat-btn" style="background:#E53935; color:#fff; padding:2px 6px; font-size:0.7rem; margin-left:6px;">Obligatorio</span>' : ''}
+                </div>
+                <div style="display:flex; gap:6px;">
+                  <button class="cat-btn" style="padding:3px 8px; font-size:0.75rem;" onclick="abrirModalEditarGrupoMod(${g.id})">Editar</button>
+                  <button class="icon-btn" style="color:#F2B8B5; padding:2px;" onclick="eliminarGrupoMod(${g.id})"><span class="material-icons-round">delete</span></button>
+                </div>
+              </div>
+              <div style="margin-top:6px;">${opcsHtml || '<span style="color:#666; font-size:0.8rem;">Sin opciones en este grupo.</span>'}</div>
+            </div>
+          `;
+          });
+        } catch (e) {
+          console.error('Error cargando modificadores:', e);
+        }
+      }
+
+      async function cargarDescuentos() {
+        try {
+          const res = await fetch('/api/items/descuentos');
+          descuentosCache = await res.json();
+          const tbody = document.getElementById('tabla-descuentos-body');
+          tbody.innerHTML = '';
+          if (!descuentosCache || descuentosCache.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="5" style="text-align:center; color:#888; padding:16px;">No hay descuentos registrados.</td></tr>';
+            return;
+          }
+          descuentosCache.forEach((d) => {
+            tbody.innerHTML += `
+            <tr>
+              <td><strong>${d.nombre}</strong></td>
+              <td>${d.tipo.toUpperCase()}</td>
+              <td>${d.tipo === 'porcentaje' ? d.valor + '%' : '$' + d.valor}</td>
+              <td>${d.requiere_pin_admin ? '🔒 Requiere PIN Admin' : 'Libre'}</td>
+              <td style="text-align:right;">
+                <button class="icon-btn" style="color:#F2B8B5;" onclick="eliminarDescuento(${d.id})"><span class="material-icons-round">delete</span></button>
+              </td>
+            </tr>
+          `;
+          });
+        } catch (e) {
+          console.error('Error cargando descuentos:', e);
+        }
+      }
+
+      async function cargarInsumos() {
+        try {
+          const res = await fetch('/api/items/insumos');
+          insumosCache = await res.json();
+          const cont = document.getElementById('lista-insumos-container');
+          cont.innerHTML = '';
+          if (!insumosCache || insumosCache.length === 0) {
+            cont.innerHTML =
+              '<div style="text-align:center; color:#888; padding:20px;">No hay insumos registrados.</div>';
+            return;
+          }
+          insumosCache.forEach((i) => {
+            cont.innerHTML += `
+            <div class="item-list-entry">
+              <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                <div>
+                  <strong style="color:#fff; font-size:0.95rem;">${i.nombre}</strong>
+                  <div style="font-size:0.75rem; color:#aaa; margin-top:2px;">Unidad: ${i.unidad_medida}</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:14px;">
+                <span style="color:#6DD58C; font-weight:900; font-size:1.1rem;">${i.stock_actual} ${i.unidad_medida}</span>
+                <div style="display:flex; gap:4px;">
+                  <button class="cat-btn" style="padding:4px 10px; font-size:0.8rem;" onclick="abrirModalEditarInsumo(${i.id})">Editar</button>
+                  <button class="icon-btn" style="color:#F2B8B5; padding:2px;" onclick="eliminarInsumo(${i.id})"><span class="material-icons-round">delete</span></button>
+                </div>
+              </div>
+            </div>
+          `;
+          });
+        } catch (e) {
+          console.error('Error cargando insumos:', e);
+        }
+      }
+
+      function toggleStockFields() {
+        const chk = document.getElementById('prod-seguimiento').checked;
+        document.getElementById('stock-field-box').style.display = chk ? 'grid' : 'none';
+      }
+
+      function toggleRecetaFields() {
+        const chk = document.getElementById('prod-es-compuesto').checked;
+        document.getElementById('receta-field-box').style.display = chk ? 'block' : 'none';
+      }
+
+      async function abrirModalProducto(id = null) {
+        const selCat = document.getElementById('prod-categoria-select');
+        selCat.innerHTML = '<option value="">-- Sin Categoría --</option>';
+        categoriasCache.forEach((c) => {
+          selCat.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+        });
+
+        document.getElementById('variantes-items-box').innerHTML = '';
+        document.getElementById('receta-items-box').innerHTML = '';
+
+        const modBox = document.getElementById('modificadores-check-box');
+        modBox.innerHTML = '';
+        modificadoresCache.forEach((g) => {
+          modBox.innerHTML += `
+          <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; color:#ddd; cursor:pointer;">
+            <input type="checkbox" class="mod-check-p" value="${g.id}"> ${g.nombre}
+          </label>
+        `;
+        });
+
+        if (id) {
+          document.getElementById('modal-prod-titulo').innerText = 'Modificar Artículo';
+          document.getElementById('prod-edit-id').value = id;
+
+          try {
+            const res = await fetch(`/api/items/productos/${id}`);
+            if (!res.ok) throw new Error('Error al cargar producto');
+            const data = await res.json();
+            const p = data.producto;
+
+            document.getElementById('prod-nombre').value = p.nombre;
+            document.getElementById('prod-categoria-select').value = p.categoria_id || '';
+            document.getElementById('prod-precio').value = p.precio;
+            document.getElementById('prod-disponible-venta').checked = p.disponible_venta === 1;
+
+            document.getElementById('prod-seguimiento').checked = p.seguimiento_stock === 1;
+            document.getElementById('prod-stock-act').value = p.stock_actual;
+            document.getElementById('prod-stock-min').value = p.stock_minimo;
+            document.getElementById('prod-es-compuesto').checked = p.es_compuesto === 1;
+
+            (data.variantes || []).forEach((v) =>
+              agregarFilaVariante(v.nombre, v.precio, v.disponible === 1, v.id, v),
+            );
+            (data.receta || []).forEach((r) => agregarFilaReceta(r.insumo_id, r.cantidad));
+            (data.modificadores_vinculados || []).forEach((gId) => {
+              const chk = document.querySelector(`.mod-check-p[value="${gId}"]`);
+              if (chk) chk.checked = true;
+            });
+          } catch (err) {
+            return alert('No se pudo cargar el producto para editar.');
+          }
+        } else {
+          document.getElementById('modal-prod-titulo').innerText = 'Nuevo Artículo';
+          document.getElementById('prod-edit-id').value = '';
+          document.getElementById('prod-nombre').value = '';
+          document.getElementById('prod-precio').value = '0.00';
+          document.getElementById('prod-disponible-venta').checked = true;
+
+          document.getElementById('prod-seguimiento').checked = false;
+          document.getElementById('prod-es-compuesto').checked = false;
+          document.getElementById('prod-stock-act').value = '0';
+          document.getElementById('prod-stock-min').value = '0';
+        }
+
+        toggleStockFields();
+        toggleRecetaFields();
+        document.getElementById('modal-prod').style.display = 'flex';
+      }
+
+      function agregarFilaVariante(nombre = '', precio = 0, disponible = true, varianteId = null, servicios = {}) {
+        const cont = document.getElementById('variantes-items-box');
+        const row = document.createElement('div');
+        row.className = 'variante-row';
+        if (varianteId) row.dataset.varianteId = varianteId;
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '2fr 1fr 120px 30px';
+        row.style.gap = '8px';
+        row.style.alignItems = 'center';
+        row.style.marginTop = '8px';
+        row.innerHTML = `
+        <input type="text" class="input-field var-nombre" placeholder="Nombre (Ej: Grande)" value="${nombre}" style="margin:0;">
+        <input type="number" class="input-field var-precio" placeholder="Precio $" step="any" value="${precio}" style="margin:0;">
+        <label class="availability-switch ${disponible ? 'is-on' : ''}" title="Cambiar disponibilidad">
+          <input type="checkbox" class="var-disp" ${disponible ? 'checked' : ''}>
+          <span class="availability-track"><span class="availability-thumb"></span></span>
+          <span class="availability-label">${disponible ? 'Disponible' : 'Agotado'}</span>
+        </label>
+        <button class="icon-btn" style="color:#F2B8B5;" onclick="this.parentElement.remove()"><span class="material-icons-round">delete</span></button>
+      `;
+        const toggle = row.querySelector('.var-disp');
+        toggle.addEventListener('change', async () => {
+          const label = row.querySelector('.availability-switch');
+          const text = row.querySelector('.availability-label');
+          const previous = !toggle.checked;
+          const applyVisual = () => {
+            label.classList.toggle('is-on', toggle.checked);
+            text.textContent = toggle.checked ? 'Disponible' : 'Agotado';
+          };
+          applyVisual();
+          if (!row.dataset.varianteId) return;
+          toggle.disabled = true;
+          try {
+            const res = await fetch(`/api/items/variantes/${row.dataset.varianteId}/disponibilidad`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ disponible: toggle.checked }),
+            });
+            if (!res.ok) throw new Error((await res.json()).error || 'No se pudo cambiar disponibilidad');
+          } catch (err) {
+            toggle.checked = previous;
+            applyVisual();
+            alert(err.message);
+          } finally {
+            toggle.disabled = false;
+          }
+        });
+        cont.appendChild(row);
+      }
+
+      function agregarFilaReceta(insumoId = '', cant = 1) {
+        const cont = document.getElementById('receta-items-box');
+        const row = document.createElement('div');
+        row.className = 'receta-row';
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '2fr 1fr 30px';
+        row.style.gap = '6px';
+        row.style.marginTop = '6px';
+
+        let opts = '<option value="">-- Seleccionar Insumo --</option>';
+        insumosCache.forEach((i) => {
+          opts += `<option value="${i.id}" ${i.id == insumoId ? 'selected' : ''}>${i.nombre} (${i.unidad_medida})</option>`;
+        });
+
+        row.innerHTML = `
+        <select class="input-field rec-insumo">${opts}</select>
+        <input type="number" class="input-field rec-cant" placeholder="Cantidad (ej: 0.5)" step="any" value="${cant}">
+        <button class="icon-btn" style="color:#F2B8B5;" onclick="this.parentElement.remove()"><span class="material-icons-round">delete</span></button>
+      `;
+        cont.appendChild(row);
+      }
+
+      async function guardarProductoCompleto() {
+        const id = document.getElementById('prod-edit-id').value;
+        const nombre = document.getElementById('prod-nombre').value.trim();
+        const categoria_id = document.getElementById('prod-categoria-select').value;
+        const precio = parseFloat(document.getElementById('prod-precio').value) || 0;
+        const disponible_venta = document.getElementById('prod-disponible-venta').checked;
+        const productoActualServicios = productosCache.find((p) => Number(p.id) === Number(id));
+        const disponible_comedor = productoActualServicios ? productoActualServicios.disponible_comedor !== 0 : true;
+        const disponible_para_llevar = productoActualServicios ? productoActualServicios.disponible_para_llevar !== 0 : true;
+        const disponible_delivery = productoActualServicios ? productoActualServicios.disponible_delivery !== 0 : true;
+        const seguimiento_stock = document.getElementById('prod-seguimiento').checked;
+        const stock_actual = parseFloat(document.getElementById('prod-stock-act').value) || 0;
+        const stock_minimo = parseFloat(document.getElementById('prod-stock-min').value) || 0;
+        const es_compuesto = document.getElementById('prod-es-compuesto').checked;
+
+        if (!nombre) return alert('El nombre es requerido.');
+
+        const variantes = [];
+        document.querySelectorAll('.variante-row').forEach((r) => {
+          const vNom = r.querySelector('.var-nombre').value.trim();
+          const vPrec = parseFloat(r.querySelector('.var-precio').value) || 0;
+          const vDisp = r.querySelector('.var-disp').checked;
+          const varianteAnterior = productoActualServicios?.variantes?.find((v) => Number(v.id) === Number(r.dataset.varianteId));
+          if (vNom) variantes.push({
+            id: r.dataset.varianteId ? Number(r.dataset.varianteId) : null,
+            nombre:vNom, precio:vPrec, costo:0, disponible:vDisp,
+            disponible_comedor:varianteAnterior?.disponible_comedor ?? null,
+            disponible_para_llevar:varianteAnterior?.disponible_para_llevar ?? null,
+            disponible_delivery:varianteAnterior?.disponible_delivery ?? null,
+          });
+        });
+
+        const receta = [];
+        if (es_compuesto) {
+          document.querySelectorAll('.receta-row').forEach((r) => {
+            const iId = r.querySelector('.rec-insumo').value;
+            const iCant = parseFloat(r.querySelector('.rec-cant').value) || 1;
+            if (iId) receta.push({ insumo_id: parseInt(iId), cantidad: iCant });
+          });
+        }
+
+        const grupos_modificadores = [];
+        document.querySelectorAll('.mod-check-p:checked').forEach((c) => {
+          grupos_modificadores.push(parseInt(c.value));
+        });
+
+        const payload = {
+          nombre,
+          categoria_id,
+          precio,
+          costo: 0,
+          disponible_venta,
+          disponible_comedor,
+          disponible_para_llevar,
+          disponible_delivery,
+          seguimiento_stock,
+          stock_actual,
+          stock_minimo,
+          es_compuesto,
+          variantes,
+          receta,
+          grupos_modificadores,
+        };
+
+        const url = id ? `/api/items/productos/${id}` : '/api/items/productos';
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          document.getElementById('modal-prod').style.display = 'none';
+          cargarProductos();
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Error al guardar');
+        }
+      }
+
+      async function eliminarProducto(id) {
+        if (confirm('¿Eliminar este artículo del catálogo?')) {
+          await fetch(`/api/items/productos/${id}`, { method: 'DELETE' });
+          cargarProductos();
+        }
+      }
+
+      function abrirModalNuevaCategoria() {
+        document.getElementById('modal-cat-titulo').innerText = 'Nueva Categoría';
+        document.getElementById('cat-edit-id').value = '';
+        document.getElementById('cat-nombre-input').value = '';
+        document.getElementById('cat-color-picker').value = '#1E88E5';
+        document.getElementById('cat-color-text').value = '#1E88E5';
+        document.getElementById('modal-cat').style.display = 'flex';
+      }
+
+      async function abrirModalEditarCategoria(id) {
+        const res = await fetch(`/api/items/categorias/${id}`);
+        if (!res.ok) return alert('No se encontró la categoría');
+        const c = await res.json();
+
+        document.getElementById('modal-cat-titulo').innerText = 'Editar Categoría';
+        document.getElementById('cat-edit-id').value = c.id;
+        document.getElementById('cat-nombre-input').value = c.nombre;
+        document.getElementById('cat-color-picker').value = c.color || '#1E88E5';
+        document.getElementById('cat-color-text').value = c.color || '#1E88E5';
+        document.getElementById('modal-cat').style.display = 'flex';
+      }
+
+      document.getElementById('cat-color-picker').addEventListener('input', (e) => {
+        document.getElementById('cat-color-text').value = e.target.value;
+      });
+
+      async function guardarCategoria() {
+        const id = document.getElementById('cat-edit-id').value;
+        const nombre = document.getElementById('cat-nombre-input').value.trim();
+        const color = document.getElementById('cat-color-text').value.trim();
+        if (!nombre) return alert('El nombre de la categoría es requerido.');
+
+        const url = id ? `/api/items/categorias/${id}` : '/api/items/categorias';
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, color }),
+        });
+
+        if (res.ok) {
+          document.getElementById('modal-cat').style.display = 'none';
+          cargarCategorias();
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Error al guardar categoría');
+        }
+      }
+
+      async function eliminarCategoria(id) {
+        if (confirm('¿Eliminar categoría?')) {
+          await fetch(`/api/items/categorias/${id}`, { method: 'DELETE' });
+          cargarCategorias();
+        }
+      }
+
+      function abrirModalGrupoModCompleto() {
+        document.getElementById('modal-gmod-titulo').innerText = 'Nuevo Grupo de Modificadores';
+        document.getElementById('gmod-edit-id').value = '';
+        document.getElementById('gmod-c-nombre').value = '';
+        document.getElementById('gmod-c-obligatorio').checked = false;
+        const cont = document.getElementById('gmod-opciones-container');
+        cont.innerHTML = '';
+        agregarFilaOpcionMod('', '0.00', true);
+        agregarFilaOpcionMod('', '0.00', true);
+        document.getElementById('modal-grupo-mod-completo').style.display = 'flex';
+      }
+
+      async function abrirModalEditarGrupoMod(id) {
+        const res = await fetch(`/api/items/modificadores/grupos/${id}`);
+        const g = await res.json();
+        document.getElementById('modal-gmod-titulo').innerText = 'Editar Grupo de Modificadores';
+        document.getElementById('gmod-edit-id').value = g.id;
+        document.getElementById('gmod-c-nombre').value = g.nombre;
+        document.getElementById('gmod-c-obligatorio').checked = g.obligatorio === 1;
+
+        const cont = document.getElementById('gmod-opciones-container');
+        cont.innerHTML = '';
+        (g.opciones || []).forEach((o) =>
+          agregarFilaOpcionMod(o.nombre, o.precio_extra, o.disponible === 1, o.id),
+        );
+        if (!g.opciones || g.opciones.length === 0) agregarFilaOpcionMod('', '0.00', true);
+
+        document.getElementById('modal-grupo-mod-completo').style.display = 'flex';
+      }
+
+      function agregarFilaOpcionMod(nom = '', prec = '0.00', disp = true, opcionId = null) {
+        const cont = document.getElementById('gmod-opciones-container');
+        const row = document.createElement('div');
+        row.className = 'gmod-opc-row';
+        if (opcionId) row.dataset.opcionId = opcionId;
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '2fr 1fr 120px 30px';
+        row.style.gap = '8px';
+        row.style.alignItems = 'center';
+        row.style.marginTop = '8px';
+        row.innerHTML = `
+        <input type="text" class="input-field opt-nombre" placeholder="Opción (Ej: Salsa Verde)" value="${nom}" style="margin:0;">
+        <input type="number" class="input-field opt-precio" placeholder="Extra $" step="any" value="${prec}" style="margin:0;">
+        <label class="availability-switch ${disp ? 'is-on' : ''}" title="Cambiar disponibilidad">
+          <input type="checkbox" class="opt-disp" ${disp ? 'checked' : ''}>
+          <span class="availability-track"><span class="availability-thumb"></span></span>
+          <span class="availability-label">${disp ? 'Disponible' : 'Agotado'}</span>
+        </label>
+        <button class="icon-btn" style="color:#F2B8B5;" onclick="this.parentElement.remove()"><span class="material-icons-round">delete</span></button>
+      `;
+        const toggle = row.querySelector('.opt-disp');
+        toggle.addEventListener('change', async () => {
+          const label = row.querySelector('.availability-switch');
+          const text = row.querySelector('.availability-label');
+          const previous = !toggle.checked;
+          const applyVisual = () => {
+            label.classList.toggle('is-on', toggle.checked);
+            text.textContent = toggle.checked ? 'Disponible' : 'Agotado';
+          };
+          applyVisual();
+          if (!row.dataset.opcionId) return;
+          toggle.disabled = true;
+          try {
+            const res = await fetch(`/api/items/modificadores/opciones/${row.dataset.opcionId}/disponibilidad`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ disponible: toggle.checked }),
+            });
+            if (!res.ok) throw new Error((await res.json()).error || 'No se pudo cambiar disponibilidad');
+          } catch (err) {
+            toggle.checked = previous;
+            applyVisual();
+            alert(err.message);
+          } finally {
+            toggle.disabled = false;
+          }
+        });
+        cont.appendChild(row);
+      }
+
+      async function guardarGrupoModCompleto() {
+        const id = document.getElementById('gmod-edit-id').value;
+        const nombre = document.getElementById('gmod-c-nombre').value.trim();
+        const obligatorio = document.getElementById('gmod-c-obligatorio').checked;
+
+        if (!nombre) return alert('Nombre del grupo obligatorio.');
+
+        const opciones = [];
+        document.querySelectorAll('.gmod-opc-row').forEach((r) => {
+          const oNom = r.querySelector('.opt-nombre').value.trim();
+          const oPrec = parseFloat(r.querySelector('.opt-precio').value) || 0;
+          const oDisp = r.querySelector('.opt-disp').checked;
+          if (oNom) opciones.push({ nombre: oNom, precio_extra: oPrec, disponible: oDisp });
+        });
+
+        if (opciones.length === 0) return alert('Agrega al menos una opción al grupo.');
+
+        const url = id
+          ? `/api/items/modificadores/completo/${id}`
+          : '/api/items/modificadores/completo';
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, obligatorio, opciones }),
+        });
+
+        if (res.ok) {
+          document.getElementById('modal-grupo-mod-completo').style.display = 'none';
+          cargarModificadores();
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Error al guardar grupo');
+        }
+      }
+
+      async function eliminarGrupoMod(id) {
+        if (confirm('¿Eliminar este grupo de modificadores?')) {
+          await fetch(`/api/items/modificadores/grupos/${id}`, { method: 'DELETE' });
+          cargarModificadores();
+        }
+      }
+
+      function abrirModalNuevoDescuento() {
+        document.getElementById('desc-nombre-input').value = '';
+        document.getElementById('desc-tipo-select').value = 'porcentaje';
+        document.getElementById('desc-valor-input').value = '10';
+        document.getElementById('desc-pin-admin').checked = false;
+        document.getElementById('modal-desc').style.display = 'flex';
+      }
+
+      async function guardarDescuento() {
+        const nombre = document.getElementById('desc-nombre-input').value.trim();
+        const tipo = document.getElementById('desc-tipo-select').value;
+        const valor = parseFloat(document.getElementById('desc-valor-input').value) || 0;
+        const requiere_pin_admin = document.getElementById('desc-pin-admin').checked;
+
+        if (!nombre) return alert('Nombre del descuento requerido.');
+
+        const res = await fetch('/api/items/descuentos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, tipo, valor, requiere_pin_admin }),
+        });
+
+        if (res.ok) {
+          document.getElementById('modal-desc').style.display = 'none';
+          cargarDescuentos();
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Error al guardar descuento');
+        }
+      }
+
+      async function eliminarDescuento(id) {
+        if (confirm('¿Eliminar descuento?')) {
+          await fetch(`/api/items/descuentos/${id}`, { method: 'DELETE' });
+          cargarDescuentos();
+        }
+      }
+
+      function abrirModalInsumo() {
+        document.getElementById('modal-ins-titulo').innerText = 'Nuevo Insumo';
+        document.getElementById('ins-edit-id').value = '';
+        document.getElementById('ins-nombre').value = '';
+        document.getElementById('ins-unidad').value = 'pza';
+        document.getElementById('ins-stock').value = '0';
+        document.getElementById('modal-insumo').style.display = 'flex';
+      }
+
+      async function abrirModalEditarInsumo(id) {
+        const res = await fetch(`/api/items/insumos/${id}`);
+        const ins = await res.json();
+        document.getElementById('modal-ins-titulo').innerText = 'Modificar Insumo';
+        document.getElementById('ins-edit-id').value = ins.id;
+        document.getElementById('ins-nombre').value = ins.nombre;
+        document.getElementById('ins-unidad').value = ins.unidad_medida || 'pza';
+        document.getElementById('ins-stock').value = ins.stock_actual;
+        document.getElementById('modal-insumo').style.display = 'flex';
+      }
+
+      async function guardarInsumo() {
+        const id = document.getElementById('ins-edit-id').value;
+        const nombre = document.getElementById('ins-nombre').value.trim();
+        const unidad_medida = document.getElementById('ins-unidad').value;
+        const stock_actual = parseFloat(document.getElementById('ins-stock').value) || 0;
+
+        if (!nombre) return alert('Nombre requerido');
+
+        const url = id ? `/api/items/insumos/${id}` : '/api/items/insumos';
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, unidad_medida, stock_actual }),
+        });
+
+        if (res.ok) {
+          document.getElementById('modal-insumo').style.display = 'none';
+          cargarInsumos();
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Error al guardar insumo');
+        }
+      }
+
+      async function eliminarInsumo(id) {
+        if (confirm('¿Eliminar este insumo del almacén?')) {
+          await fetch(`/api/items/insumos/${id}`, { method: 'DELETE' });
+          cargarInsumos();
+        }
+      }
+
+
+      function renderDisponibilidad() {
+        const body=document.getElementById('tabla-disponibilidad-body'); if(!body)return;
+        const q=(document.getElementById('buscar-disponibilidad')?.value||'').trim().toLowerCase();
+        const lista=productosCache.filter(p=>!q||String(p.nombre||'').toLowerCase().includes(q));
+        body.innerHTML=lista.length?lista.map(p=>`<tr><td><b>${p.nombre}</b></td><td style="text-align:center">${Number(p.disponible_comedor)?'✓':'—'}</td><td style="text-align:center">${Number(p.disponible_para_llevar)?'✓':'—'}</td><td style="text-align:center">${Number(p.disponible_delivery)?'✓':'—'}</td><td style="text-align:center">${(p.variantes||[]).length||'—'}</td><td style="text-align:right"><button class="cat-btn" onclick="abrirModalDisponibilidad(${Number(p.id)})">Editar</button></td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center">Sin resultados</td></tr>';
+      }
+      function dispSelect(k,label,value){
+        const v=value==null?'inherit':(Number(value)?'yes':'no');
+        return `<label style="font-size:.75rem;color:#aaa">${label}<select class="input-field disp-var-${k}" style="margin:4px 0 0"><option value="inherit" ${v==='inherit'?'selected':''}>Heredar</option><option value="yes" ${v==='yes'?'selected':''}>Disponible</option><option value="no" ${v==='no'?'selected':''}>No disponible</option></select></label>`;
+      }
+      function abrirModalDisponibilidad(id){
+        const p=productosCache.find(x=>Number(x.id)===Number(id));if(!p)return;
+        document.getElementById('disp-producto-id').value=p.id;document.getElementById('disp-producto-nombre').textContent=p.nombre;
+        document.getElementById('disp-comedor').checked=p.disponible_comedor!==0;document.getElementById('disp-llevar').checked=p.disponible_para_llevar!==0;document.getElementById('disp-delivery').checked=p.disponible_delivery!==0;
+        const vs=p.variantes||[];document.getElementById('disp-variantes-box').style.display=vs.length?'block':'none';
+        document.getElementById('disp-variantes-lista').innerHTML=vs.map(v=>`<div class="disp-var-row" data-id="${Number(v.id)}" style="padding:10px 0;border-top:1px solid #282a36"><b>${v.nombre}</b><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px">${dispSelect('comedor','Comedor',v.disponible_comedor)}${dispSelect('para_llevar','Para llevar',v.disponible_para_llevar)}${dispSelect('delivery','Domicilio',v.disponible_delivery)}</div></div>`).join('');
+        document.getElementById('modal-disponibilidad').style.display='flex';
+      }
+      function cerrarModalDisponibilidad(){document.getElementById('modal-disponibilidad').style.display='none'}
+      async function guardarDisponibilidadServicio(){
+        const id=Number(document.getElementById('disp-producto-id').value),p=productosCache.find(x=>Number(x.id)===id);if(!p)return;
+        const read=(row,k)=>{const v=row.querySelector('.disp-var-'+k).value;return v==='inherit'?null:v==='yes'};
+        const variantes=(p.variantes||[]).map(v=>{const row=document.querySelector(`.disp-var-row[data-id="${Number(v.id)}"]`);return {...v,disponible_comedor:row?read(row,'comedor'):v.disponible_comedor,disponible_para_llevar:row?read(row,'para_llevar'):v.disponible_para_llevar,disponible_delivery:row?read(row,'delivery'):v.disponible_delivery}});
+        const payload={...p,disponible_comedor:document.getElementById('disp-comedor').checked,disponible_para_llevar:document.getElementById('disp-llevar').checked,disponible_delivery:document.getElementById('disp-delivery').checked,variantes};
+        const res=await fetch(`/api/items/productos/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        if(!res.ok){const e=await res.json().catch(()=>({}));return alert(e.error||'No se pudo guardar disponibilidad')}
+        cerrarModalDisponibilidad();await cargarProductos();
+      }
+
+      function filtrarArticulos() {
+        const q = document.getElementById('buscar-articulo').value.toLowerCase().trim();
+        renderProductos(productosCache.filter((p) => p.nombre.toLowerCase().includes(q)));
+      }
+
+      document.addEventListener('DOMContentLoaded', cargarTodo);
+    </script>
+  </body>
+</html>

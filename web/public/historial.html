@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <script src="/js/session.js"></script>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Historial de Asistencias - Gerencia</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .hist-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      .filter-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      @media (max-width: 600px) {
+        .filter-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .hist-card {
+        background: var(--md-surface-variant);
+        border-radius: var(--md-radius-md);
+        padding: 14px;
+        margin-bottom: 10px;
+        border: 1px solid var(--md-outline);
+      }
+      .badge {
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 600;
+      }
+      .badge-ok {
+        background: var(--md-success-bg);
+        color: var(--md-success);
+      }
+      .badge-err {
+        background: var(--md-danger-bg);
+        color: var(--md-danger);
+      }
+    </style>
+    <link rel="stylesheet" href="/css/runtime-settings.css?v=4" />
+    <script src="/js/runtime-settings.js?v=4" defer></script>
+  </head>
+  <body>
+    <div class="hist-container">
+      <!-- Encabezado -->
+      <div
+        class="md-card"
+        style="display: flex; justify-content: space-between; align-items: center"
+      >
+        <div>
+          <h2 style="margin: 0; font-size: 1.25rem">Historial de Asistencias</h2>
+          <span style="color: var(--md-text-muted); font-size: 0.8rem"
+            >Control de retardos y horas</span
+          >
+        </div>
+        <a
+          href="/admin.html"
+          class="md-btn md-btn-outlined"
+          style="width: auto; padding: 6px 12px; margin: 0; font-size: 0.8rem"
+          >Volver al Panel</a
+        >
+      </div>
+
+      <!-- Filtros de Búsqueda -->
+      <div class="md-card">
+        <h3 style="margin-top: 0; font-size: 1rem">Filtros de Búsqueda</h3>
+        <div class="filter-grid">
+          <div>
+            <label style="font-size: 0.75rem; color: var(--md-text-muted)">Desde:</label>
+            <input type="date" id="filtro-desde" class="input-field" style="margin-bottom: 0" />
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: var(--md-text-muted)">Hasta:</label>
+            <input type="date" id="filtro-hasta" class="input-field" style="margin-bottom: 0" />
+          </div>
+        </div>
+
+        <label style="font-size: 0.75rem; color: var(--md-text-muted)">Empleado:</label>
+        <select id="filtro-emp" class="input-field">
+          <option value="">Todos los empleados</option>
+        </select>
+
+        <div style="display: flex; gap: 10px; margin-top: 8px">
+          <button class="md-btn md-btn-primary" onclick="consultarHistorial()">
+            <span class="material-icons-round">search</span>
+            Filtrar
+          </button>
+          <button class="md-btn md-btn-outlined" onclick="exportarCSV()" style="margin-top: 0">
+            <span class="material-icons-round">file_download</span>
+            Exportar Excel (.CSV)
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de Resultados -->
+      <div class="md-card">
+        <h3 style="margin-top: 0; font-size: 1rem">Registros Encontrados</h3>
+        <div id="lista-historial">Cargando registros...</div>
+      </div>
+    </div>
+
+    <script>
+      let registrosActuales = [];
+
+      // Validar sesión de Dann
+      const adminSession = JSON.parse(sessionStorage.getItem('admin_session') || 'null');
+      if (!adminSession) {
+        window.location.href = '/admin.html';
+      }
+
+      async function inicializar() {
+        // 1. Cargar selector de empleados
+        const resEmp = await fetch('/api/admin/empleados');
+        const empleados = await resEmp.json();
+        const select = document.getElementById('filtro-emp');
+        empleados.forEach((e) => {
+          select.innerHTML += `<option value="${e.id}">${e.nombre} (${e.puesto})</option>`;
+        });
+
+        // 2. Consulta inicial
+        consultarHistorial();
+      }
+
+      async function consultarHistorial() {
+        const desde = document.getElementById('filtro-desde').value;
+        const hasta = document.getElementById('filtro-hasta').value;
+        const empId = document.getElementById('filtro-emp').value;
+
+        let url = `/api/admin/historial?`;
+        if (desde) url += `desde=${desde}&`;
+        if (hasta) url += `hasta=${hasta}&`;
+        if (empId) url += `usuario_id=${empId}&`;
+
+        const res = await fetch(url);
+        registrosActuales = await res.json();
+        const cont = document.getElementById('lista-historial');
+        cont.innerHTML = '';
+
+        if (registrosActuales.length === 0) {
+          cont.innerHTML =
+            '<p style="color:var(--md-text-muted); font-size:0.85rem;">No se encontraron asistencias con esos filtros.</p>';
+          return;
+        }
+
+        registrosActuales.forEach((r) => {
+          let estadoBadge = `<span class="badge badge-ok">A tiempo</span>`;
+          if (r.minutos_retraso > 0) {
+            estadoBadge = `<span class="badge badge-err">+${r.minutos_retraso} min retardo</span>`;
+          }
+
+          const item = document.createElement('div');
+          item.className = 'hist-card';
+          item.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>${r.nombre}</strong>
+            ${estadoBadge}
+          </div>
+          <div style="font-size:0.8rem; color:var(--md-text-muted); margin-top:4px;">
+            Puesto: ${r.puesto} | Fecha: <strong>${r.fecha}</strong>
+          </div>
+          <div style="font-size:0.85rem; margin-top:6px;">
+            Entrada: <strong>${r.hora_entrada}</strong> | Salida: <strong>${r.hora_salida}</strong> | Total: <strong>${r.horas_trabajadas} hrs</strong>
+          </div>
+        `;
+          cont.appendChild(item);
+        });
+      }
+
+      // Exportación directa a archivo Excel (.CSV)
+      function exportarCSV() {
+        if (registrosActuales.length === 0) return alert('No hay datos para exportar.');
+
+        let csv =
+          'ID,Empleado,Puesto,Fecha,Hora Entrada,Hora Salida,Estado,Minutos Retardo,Horas Trabajadas\n';
+        registrosActuales.forEach((r) => {
+          csv += `${r.id},"${r.nombre}","${r.puesto}",${r.fecha},${r.hora_entrada},${r.hora_salida},${r.estado_entrada},${r.minutos_retraso},${r.horas_trabajadas}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const enlace = document.createElement('a');
+        enlace.setAttribute('href', url);
+        enlace.setAttribute(
+          'download',
+          `asistencias_restaurante_${new Date().toISOString().slice(0, 10)}.csv`,
+        );
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+      }
+
+      inicializar();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,2213 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <script src="/js/session.js"></script>
+
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0,
+      maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+
+    <title>Configuración - Los Compadres</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+
+    <link rel="stylesheet" href="/css/style.css?v=2.1" />
+
+    <link rel="stylesheet" href="/css/integrations.css?v=4.0" />
+
+    <script defer src="/js/settings-v3.js?v=kds-wizard-20260926"></script>
+    <link rel="stylesheet" href="/css/runtime-settings.css?v=4" />
+    <script src="/js/runtime-settings.js?v=4" defer></script>
+    <script src="/js/settings-modules.js?v=4" defer></script>
+    <script src="/js/point-settings.js?v=1" defer></script>
+  </head>
+
+  <body>
+    <!-- ===================================================
+         BARRA SUPERIOR
+    ==================================================== -->
+
+    <div class="top-bar settings-topbar">
+      <div class="settings-topbar-left">
+        <button class="icon-btn" onclick="toggleSidebarGlobal()" aria-label="Abrir menú">
+          <span class="material-icons-round"> menu </span>
+        </button>
+
+        <button
+          id="settings-back"
+          class="icon-btn settings-back-btn"
+          onclick="openSettingsHome()"
+          aria-label="Volver"
+          style="display: none"
+        >
+          <span class="material-icons-round"> arrow_back </span>
+        </button>
+
+        <div>
+          <div id="settings-page-title" class="settings-page-title">Configuración</div>
+
+          <div id="settings-page-subtitle" class="settings-page-subtitle">
+            Sistema e integraciones
+          </div>
+        </div>
+      </div>
+
+      <button
+        id="top-save"
+        class="settings-top-save"
+        onclick="document.getElementById('save').click()"
+      >
+        <span class="material-icons-round"> save </span>
+
+        <span> Guardar </span>
+      </button>
+    </div>
+
+    <!-- ===================================================
+         AVISOS
+    ==================================================== -->
+
+    <div id="status" class="status" role="status"></div>
+
+    <!-- ===================================================
+         CONTENIDO
+    ==================================================== -->
+
+    <div class="scrollable-page settings-scroll">
+      <main class="settings-container">
+        <!-- =================================================
+             INICIO / DASHBOARD DE CONFIGURACION
+        ================================================== -->
+
+        <div id="settings-home" class="settings-home">
+          <div class="settings-hero">
+            <div class="settings-hero-icon">
+              <span class="material-icons-round"> tune </span>
+            </div>
+
+            <div>
+              <h1>Configuración</h1>
+
+              <p>
+                Administra tu restaurante, dispositivos, integraciones y servicios desde un solo
+                lugar.
+              </p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <button
+              class="settings-menu-card"
+              onclick="
+                openSettingsView('restaurant', 'Tu restaurante', 'Información general del negocio')
+              "
+            >
+              <div class="settings-card-icon">
+                <span class="material-icons-round"> storefront </span>
+              </div>
+
+              <div class="settings-card-content">
+                <strong> Tu restaurante </strong>
+
+                <span> Nombre, teléfono, dirección y tickets </span>
+              </div>
+
+              <span class="material-icons-round settings-chevron"> chevron_right </span>
+            </button>
+
+            <button
+              class="settings-menu-card"
+              onclick="
+                openSettingsView('printers', 'Impresoras', 'Tickets, comandas y cajón de dinero')
+              "
+            >
+              <div class="settings-card-icon">
+                <span class="material-icons-round"> print </span>
+              </div>
+
+              <div class="settings-card-content">
+                <strong> Impresoras </strong>
+
+                <span> Tickets, cocina, precuentas y cajón </span>
+              </div>
+
+              <span class="material-icons-round settings-chevron"> chevron_right </span>
+            </button>
+
+            <button
+              class="settings-menu-card"
+              onclick="
+                openSettingsView(
+                  'kds',
+                  'Pantallas de cocina',
+                  'Pase · Cocina y grupos de preparación',
+                )
+              "
+            >
+              <div class="settings-card-icon">
+                <span class="material-icons-round"> soup_kitchen </span>
+              </div>
+
+              <div class="settings-card-content">
+                <strong> Cocina · KDS </strong>
+
+                <span> Android TV, tablets y estaciones </span>
+              </div>
+
+              <span class="material-icons-round settings-chevron"> chevron_right </span>
+            </button>
+
+            <button
+              class="settings-menu-card"
+              onclick="
+                openSettingsView('biometric', 'Lector biométrico', 'Huella, checador y seguridad')
+              "
+            >
+              <div class="settings-card-icon">
+                <span class="material-icons-round"> fingerprint </span>
+              </div>
+
+              <div class="settings-card-content">
+                <strong> Lector biométrico </strong>
+
+                <span> ESP32, asistencia y apertura de cajón </span>
+              </div>
+
+              <span class="material-icons-round settings-chevron"> chevron_right </span>
+            </button>
+
+            <button
+              class="settings-menu-card"
+              onclick="openSettingsView('whatsapp', 'WhatsApp', 'Pedidos y atención automática')"
+            >
+              <div class="settings-card-icon">
+                <span class="material-icons-round"> chat </span>
+              </div>
+
+              <div class="settings-card-content">
+                <strong> WhatsApp </strong>
+
+                <span> Bot, horarios y datos de entrega </span>
+              </div>
+
+              <span class="material-icons-round settings-chevron"> chevron_right </span>
+            </button>
+
+            
+            <!-- MP6_POINT_SETTINGS_CARD_V1 -->
+            <button
+              class="settings-menu-card"
+              onclick="openSettingsView(
+                'mercadopago',
+                'Mercado Pago Point',
+                'Terminales, permisos y diagnóstico'
+              )"
+            >
+              <div class="settings-card-icon">
+                <span class="material-icons-round">
+                  point_of_sale
+                </span>
+              </div>
+
+              <div class="settings-card-content">
+                <strong>Mercado Pago Point</strong>
+                <span>
+                  Terminales, permisos, alias y diagnóstico
+                </span>
+              </div>
+
+              <span class="material-icons-round settings-chevron">
+                chevron_right
+              </span>
+            </button>
+
+<button class="settings-menu-card" onclick="location.href='/whatsapp.html'">
+              <div class="settings-card-icon"><span class="material-icons-round">forum</span></div>
+              <div class="settings-card-content"><strong>WhatsApp · CRM e inteligencia</strong><span>Conversaciones, conocimiento, consultas e IA</span></div>
+              <span class="material-icons-round settings-chevron">chevron_right</span>
+            </button>
+
+            <button
+              class="settings-menu-card"
+              onclick="
+                openSettingsView(
+                  'incoming',
+                  'Pedidos por aceptar',
+                  'Pedidos recibidos desde WhatsApp',
+                )
+              "
+            >
+              <div class="settings-card-icon">
+                <span class="material-icons-round"> move_to_inbox </span>
+              </div>
+
+              <div class="settings-card-content">
+                <strong> Pedidos por aceptar </strong>
+
+                <span> Revisa pedidos entrantes de WhatsApp </span>
+              </div>
+
+              <span class="material-icons-round settings-chevron"> chevron_right </span>
+            </button>
+
+            <button
+              class="settings-menu-card"
+              onclick="
+                openSettingsView(
+                  'printqueue',
+                  'Cola de impresión',
+                  'Estado de tickets y trabajos pendientes',
+                )
+              "
+            >
+              <div class="settings-card-icon">
+                <span class="material-icons-round"> receipt_long </span>
+              </div>
+
+              <div class="settings-card-content">
+                <strong> Cola de impresión </strong>
+
+                <span> Errores, reintentos y trabajos pendientes </span>
+              </div>
+
+              <span class="material-icons-round settings-chevron"> chevron_right </span>
+            </button>
+
+            <button
+              class="settings-menu-card"
+              onclick="openSettingsView('audit', 'Actividad', 'Registro de cambios y eventos')"
+            >
+              <div class="settings-card-icon">
+                <span class="material-icons-round"> history </span>
+              </div>
+
+              <div class="settings-card-content">
+                <strong> Actividad </strong>
+
+                <span> Auditoría y eventos del sistema </span>
+              </div>
+
+              <span class="material-icons-round settings-chevron"> chevron_right </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- =================================================
+             RESTAURANTE
+        ================================================== -->
+
+        <section class="settings-view" data-settings-view="restaurant">
+          <div class="settings-section-header">
+            <div class="settings-section-icon">
+              <span class="material-icons-round"> storefront </span>
+            </div>
+
+            <div>
+              <h2>Tu restaurante</h2>
+
+              <p>Información que aparecerá en tickets, recibos y documentos.</p>
+            </div>
+          </div>
+
+          <div class="settings-panel">
+            <div class="grid">
+              <label>
+                Nombre del restaurante
+
+                <input id="business-name" maxlength="200" placeholder="Los Compadres" />
+              </label>
+
+              <label>
+                Teléfono
+
+                <input id="business-phone" maxlength="200" placeholder="33..." />
+              </label>
+
+              <label>
+                Dirección
+
+                <input
+                  id="business-address"
+                  maxlength="200"
+                  placeholder="Dirección del restaurante"
+                />
+              </label>
+
+              <label>
+                Pie del ticket
+
+                <input id="business-footer" maxlength="200" placeholder="¡Gracias por su visita!" />
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-panel">
+            <div class="settings-panel-toolbar">
+              <div>
+                <strong>QR de reseñas / Google Maps</strong>
+                <span>Agrega un enlace y el sistema generará un QR para imprimirlo en tickets.</span>
+              </div>
+            </div>
+
+            <div class="settings-switch-list settings-switch-list-compact">
+              <label class="settings-switch-row">
+                <div>
+                  <strong>Imprimir QR en tickets</strong>
+                  <span>Se mostrará en cuenta y precuenta junto con el texto que definas.</span>
+                </div>
+                <input id="business-reviewQrEnabled" type="checkbox" />
+              </label>
+            </div>
+
+            <div class="grid" style="margin-top: 16px">
+              <label class="full">
+                Texto arriba del QR
+                <input
+                  id="business-reviewQrText"
+                  maxlength="160"
+                  placeholder="¡Escanea y déjanos tu reseña en Google Maps!"
+                />
+              </label>
+
+              <label class="full">
+                Enlace para el QR
+                <input
+                  id="business-reviewQrUrl"
+                  maxlength="1500"
+                  placeholder="https://maps.google.com/..."
+                />
+              </label>
+            </div>
+
+            <div class="settings-panel-toolbar" style="margin-top: 14px">
+              <div>
+                <strong>Vista previa</strong>
+                <span>Si cambias el enlace, genera el QR antes de guardar.</span>
+              </div>
+              <button type="button" id="business-reviewQrRefresh" class="settings-secondary-btn">
+                <span class="material-icons-round"> qr_code_2 </span>
+                Generar QR
+              </button>
+            </div>
+
+            <div id="business-reviewQrPreviewWrap" class="settings-qr-preview is-empty">
+              <div class="settings-qr-preview-placeholder">
+                <span class="material-icons-round"> qr_code_2 </span>
+                <p>Sin QR generado todavía.</p>
+              </div>
+              <img id="business-reviewQrPreview" alt="Vista previa del QR" />
+            </div>
+          </div>
+
+          <div class="settings-panel">
+
+            <div class="settings-panel-toolbar">
+              <div>
+                <strong>Encuesta de servicio impresa</strong>
+                <span>
+                  Configura cuándo se imprime y el contenido de la encuesta
+                  que acompaña a la precuenta.
+                </span>
+              </div>
+
+              <button
+                type="button"
+                id="business-surveyTest"
+                class="settings-secondary-btn"
+              >
+                <span class="material-icons-round">print</span>
+                Imprimir prueba
+              </button>
+            </div>
+
+            <div class="settings-info-box">
+              <span class="material-icons-round">rate_review</span>
+
+              <div>
+                <strong>Encuesta posterior a la precuenta</strong>
+                <span>
+                  La encuesta se imprime como un ticket independiente.
+                  Puedes decidir en qué tipos de servicio debe utilizarse.
+                </span>
+              </div>
+            </div>
+
+            <div
+              class="settings-switch-list settings-switch-list-compact"
+              style="margin-top:16px"
+            >
+
+              <label class="settings-switch-row">
+                <div>
+                  <strong>Encuestas habilitadas</strong>
+                  <span>
+                    Interruptor general para la impresión automática
+                    de encuestas.
+                  </span>
+                </div>
+
+                <input
+                  id="business-surveyEnabled"
+                  type="checkbox"
+                />
+              </label>
+
+              <label class="settings-switch-row">
+                <div>
+                  <strong>Comedor</strong>
+                  <span>
+                    Imprimir encuesta después de una precuenta de mesa.
+                  </span>
+                </div>
+
+                <input
+                  id="business-surveyDining"
+                  type="checkbox"
+                />
+              </label>
+
+              <label class="settings-switch-row">
+                <div>
+                  <strong>Para llevar</strong>
+                  <span>
+                    Imprimir encuesta en pedidos para llevar.
+                    Puedes dejarlo desactivado normalmente.
+                  </span>
+                </div>
+
+                <input
+                  id="business-surveyTakeout"
+                  type="checkbox"
+                />
+              </label>
+
+              <label class="settings-switch-row">
+                <div>
+                  <strong>A domicilio</strong>
+                  <span>
+                    Imprimir encuesta en pedidos de reparto.
+                    Puedes activarlo cuando lo necesites.
+                  </span>
+                </div>
+
+                <input
+                  id="business-surveyDelivery"
+                  type="checkbox"
+                />
+              </label>
+
+            </div>
+
+            <div class="grid" style="margin-top:20px">
+
+              <label>
+                Título
+                <input
+                  id="business-surveyTitle"
+                  maxlength="80"
+                />
+              </label>
+
+              <label>
+                Texto final
+                <input
+                  id="business-surveyFooter"
+                  maxlength="120"
+                />
+              </label>
+
+              <label class="full">
+                Mensaje al cliente
+                <input
+                  id="business-surveyMessage"
+                  maxlength="180"
+                />
+              </label>
+
+            </div>
+
+            <div
+              class="settings-info-box"
+              style="margin-top:16px"
+            >
+              <span class="material-icons-round">checklist</span>
+
+              <div>
+                <strong>Aspectos a evaluar</strong>
+                <span>
+                  Estas cinco métricas aparecen en la tabla de la encuesta.
+                  El cliente marca una calificación del 1 al 5.
+                </span>
+              </div>
+            </div>
+
+            <div class="grid" style="margin-top:16px">
+
+              <label>
+                Métrica 1
+                <input
+                  id="business-surveyMetric1"
+                  maxlength="120"
+                />
+              </label>
+
+              <label>
+                Métrica 2
+                <input
+                  id="business-surveyMetric2"
+                  maxlength="120"
+                />
+              </label>
+
+              <label>
+                Métrica 3
+                <input
+                  id="business-surveyMetric3"
+                  maxlength="120"
+                />
+              </label>
+
+              <label>
+                Métrica 4
+                <input
+                  id="business-surveyMetric4"
+                  maxlength="120"
+                />
+              </label>
+
+              <label class="full">
+                Métrica 5
+                <input
+                  id="business-surveyMetric5"
+                  maxlength="120"
+                />
+              </label>
+
+            </div>
+
+            <div
+              class="settings-info-box"
+              style="margin-top:16px"
+            >
+              <span class="material-icons-round">recommend</span>
+
+              <div>
+                <strong>Recomendación 1–10</strong>
+                <span>
+                  La pregunta “¿Nos recomendarías con tus familiares
+                  y/o amigos?” permanece fija en el ticket.
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- =================================================
+             IMPRESORAS
+        ================================================== -->
+
+        
+        <!-- MP6_POINT_SETTINGS_VIEW_V1 -->
+        <section
+          class="settings-view"
+          data-settings-view="mercadopago"
+        >
+          <div class="settings-section-header">
+            <div class="settings-section-icon">
+              <span class="material-icons-round">
+                point_of_sale
+              </span>
+            </div>
+
+            <div>
+              <h2>Mercado Pago Point</h2>
+              <p>
+                Administra terminales Point,
+                permisos y estado de la integración.
+              </p>
+            </div>
+          </div>
+
+
+          <div class="settings-panel">
+            <div class="settings-panel-toolbar">
+              <div>
+                <div class="settings-subtitle">
+                  Estado de integración
+                </div>
+
+                <div class="muted">
+                  Las credenciales permanecen únicamente
+                  en el servidor.
+                </div>
+              </div>
+
+              <button
+                type="button"
+                id="mp-point-refresh"
+                class="settings-secondary-btn"
+              >
+                <span class="material-icons-round">
+                  refresh
+                </span>
+                Actualizar estado
+              </button>
+            </div>
+
+
+            <div class="grid">
+              <div class="settings-info-box">
+                <span class="material-icons-round">
+                  key
+                </span>
+
+                <div>
+                  <strong>Credenciales</strong>
+                  <span id="mp-point-credentials">
+                    Comprobando…
+                  </span>
+                </div>
+              </div>
+
+
+              <div class="settings-info-box">
+                <span class="material-icons-round">
+                  cloud_done
+                </span>
+
+                <div>
+                  <strong>Backend Point</strong>
+                  <span id="mp-point-api-state">
+                    Comprobando…
+                  </span>
+                </div>
+              </div>
+
+
+              <div class="settings-info-box">
+                <span class="material-icons-round">
+                  science
+                </span>
+
+                <div>
+                  <strong>Modo</strong>
+                  <span id="mp-point-mode">
+                    Comprobando…
+                  </span>
+                </div>
+              </div>
+
+
+              <div class="settings-info-box">
+                <span class="material-icons-round">
+                  point_of_sale
+                </span>
+
+                <div>
+                  <strong>Terminales locales</strong>
+                  <span id="mp-point-terminal-count">
+                    0
+                  </span>
+                </div>
+              </div>
+            </div>
+
+
+            <div
+              id="mp-point-status"
+              class="settings-info-box"
+              style="margin-top:14px"
+            >
+              Cargando configuración Point…
+            </div>
+          </div>
+
+
+          <div class="settings-panel">
+            <div class="settings-panel-toolbar">
+              <div>
+                <div class="settings-subtitle">
+                  Terminales Point
+                </div>
+
+                <div class="muted">
+                  Sincroniza las terminales asociadas
+                  a tu cuenta de Mercado Pago.
+                </div>
+              </div>
+
+              <button
+                type="button"
+                id="mp-point-sync"
+                class="settings-primary-btn"
+              >
+                <span class="material-icons-round">
+                  sync
+                </span>
+                Sincronizar terminales
+              </button>
+            </div>
+
+
+            <div class="settings-info-box">
+              <span class="material-icons-round">
+                info
+              </span>
+
+              <div>
+                <strong>
+                  ¿Cómo se integra una terminal?
+                </strong>
+
+                <span>
+                  La terminal debe estar asociada a la misma
+                  cuenta de Mercado Pago y configurada para
+                  integración Point/PDV. Después pulsa
+                  “Sincronizar terminales”.
+                  Restaurant Suite la registrará y podrás
+                  asignarle un alias y habilitarla para cobros.
+                </span>
+              </div>
+            </div>
+
+
+            <div
+              style="display:none"
+              aria-hidden="true"
+            >
+              <span id="mp-point-remote-count">
+                0
+              </span>
+            </div>
+
+
+            <div
+              id="mp-point-terminals"
+              style="
+                display:grid;
+                gap:14px;
+                margin-top:14px
+              "
+            >
+              <div class="settings-loading">
+                Cargando terminales…
+              </div>
+            </div>
+          </div>
+
+
+          <div class="settings-panel">
+            <div class="settings-panel-toolbar">
+              <div>
+                <div class="settings-subtitle">
+                  Permisos de Mercado Pago Point
+                </div>
+
+                <div class="muted">
+                  Define qué roles pueden cobrar,
+                  cancelar o reembolsar operaciones Point.
+                </div>
+              </div>
+
+              <button
+                type="button"
+                id="mp-point-save-permissions"
+                class="settings-primary-btn"
+              >
+                <span class="material-icons-round">
+                  save
+                </span>
+                Guardar permisos
+              </button>
+            </div>
+
+
+            <div class="settings-info-box">
+              <span class="material-icons-round">
+                verified_user
+              </span>
+
+              <div>
+                <strong>
+                  Seguridad por rol
+                </strong>
+
+                <span>
+                  “Cobrar con Mercado Pago Point”
+                  requiere también acceso al módulo de cobro.
+                  Al habilitar Point para un rol,
+                  Restaurant Suite habilita automáticamente
+                  ese permiso maestro.
+                </span>
+              </div>
+            </div>
+
+
+            <div
+              id="mp-point-permissions"
+              class="grid"
+              style="margin-top:14px"
+            >
+              <div class="settings-loading">
+                Cargando permisos…
+              </div>
+            </div>
+          </div>
+
+
+          <div class="settings-panel">
+            <div class="settings-subtitle">
+              Seguridad de la integración
+            </div>
+
+            <div class="settings-switch-list">
+              <div class="settings-switch-row">
+                <div>
+                  <strong>
+                    Access Token protegido
+                  </strong>
+
+                  <span>
+                    Nunca se envía al navegador ni se muestra
+                    en esta pantalla.
+                  </span>
+                </div>
+
+                <span class="material-icons-round">
+                  lock
+                </span>
+              </div>
+
+
+              <div class="settings-switch-row">
+                <div>
+                  <strong>
+                    Confirmación backend
+                  </strong>
+
+                  <span>
+                    El navegador no puede declarar exitoso
+                    un pago Point.
+                  </span>
+                </div>
+
+                <span class="material-icons-round">
+                  verified
+                </span>
+              </div>
+
+
+              <div class="settings-switch-row">
+                <div>
+                  <strong>
+                    Cajón protegido
+                  </strong>
+
+                  <span>
+                    Los pagos Point no abren el cajón
+                    de efectivo.
+                  </span>
+                </div>
+
+                <span class="material-icons-round">
+                  inventory_2
+                </span>
+              </div>
+
+
+              <div class="settings-switch-row">
+                <div>
+                  <strong>
+                    Mesa protegida
+                  </strong>
+
+                  <span>
+                    La mesa sólo se libera después de una
+                    confirmación final válida del backend.
+                  </span>
+                </div>
+
+                <span class="material-icons-round">
+                  table_restaurant
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+<section class="settings-view" data-settings-view="printers">
+          <div class="settings-section-header">
+            <div class="settings-section-icon">
+              <span class="material-icons-round"> print </span>
+            </div>
+
+            <div>
+              <h2>Impresoras</h2>
+
+              <p>Configura impresoras térmicas, tipos de ticket y cajón de dinero.</p>
+            </div>
+          </div>
+
+          <div class="settings-panel">
+            <div class="settings-panel-toolbar">
+              <div>
+                <strong> Impresoras registradas </strong>
+
+                <span> Puedes tener diferentes impresoras para caja y cocina. </span>
+              </div>
+
+              <button id="add-printer" class="settings-primary-btn">
+                <span class="material-icons-round"> add </span>
+
+                Agregar impresora
+              </button>
+            </div>
+
+            <div id="printers" class="list"></div>
+          </div>
+        </section>
+
+        <!-- =================================================
+             KDS
+        ================================================== -->
+
+        <section class="settings-view" data-settings-view="kds">
+          <div class="settings-section-header">
+            <div class="settings-section-icon">
+              <span class="material-icons-round"> soup_kitchen </span>
+            </div>
+
+            <div>
+              <h2>Pantallas de cocina</h2>
+
+              <p>Configura Pase · Cocina, Android TV y tablets.</p>
+            </div>
+          </div>
+
+          <div
+            id="kds-save-center"
+            class="kds-save-center kds-save-clean"
+          >
+
+            <div class="kds-save-center-left">
+
+              <span
+                class="material-icons-round"
+                id="kds-save-icon"
+              >
+                cloud_done
+              </span>
+
+              <div>
+
+                <strong id="kds-save-status">
+                  Todo guardado
+                </strong>
+
+                <small>
+                  Puedes seguir editando.
+                  Cuando haya cambios podrás guardarlos todos juntos.
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <button
+              type="button"
+              id="kds-save-all"
+              class="settings-primary-btn"
+              disabled
+            >
+              Guardar todo
+            </button>
+
+          </div>
+
+
+          <div class="settings-panel">
+            <div class="settings-panel-toolbar">
+              <div>
+                <strong> Dispositivos KDS </strong>
+
+                <span> Cada pantalla puede recibir uno o varios grupos de preparación. </span>
+              </div>
+
+              <button id="add-kds-screen" class="settings-primary-btn">
+                <span class="material-icons-round"> add </span>
+
+                Agregar pantalla
+              </button>
+            </div>
+
+            <div class="settings-info-box">
+              <span class="material-icons-round"> info </span>
+
+              <div>
+                <strong> Vinculación </strong>
+
+                <span>
+                  En Android abre Configuración → Mostrar clave de vinculación. La clave queda
+                  cifrada después de guardarla.
+                </span>
+              </div>
+            </div>
+
+            <div id="kds-screens" class="list"></div>
+          </div>
+
+
+          <div
+            class="settings-panel"
+            style="margin-top:20px"
+          >
+
+            <div class="settings-panel-toolbar">
+
+              <div>
+                <strong>
+                  Reglas de preparación
+                </strong>
+
+                <span>
+                  Define cómo debe mostrarse cada preparación en cada estación.
+                </span>
+              </div>
+
+
+              <button
+                type="button"
+                id="add-kds-rule"
+                class="settings-primary-btn"
+              >
+                <span class="material-icons-round">
+                  add
+                </span>
+
+                Nueva regla
+              </button>
+
+            </div>
+
+
+            <div class="settings-info-box">
+
+              <span class="material-icons-round">
+                account_tree
+              </span>
+
+              <div>
+                <strong>
+                  Motor de preparación KDS
+                </strong>
+
+                <span>
+                  Puedes mostrar detalle, simplificar, agrupar,
+                  transformar u omitir preparaciones según la estación.
+                </span>
+              </div>
+
+            </div>
+
+
+            <div
+              id="kds-preparation-rules"
+              class="list"
+            ></div>
+
+          </div>
+
+        </section>
+
+        <!-- =================================================
+             BIOMETRICO
+        ================================================== -->
+
+        <section class="settings-view" data-settings-view="biometric">
+          <div class="settings-section-header">
+            <div class="settings-section-icon">
+              <span class="material-icons-round"> fingerprint </span>
+            </div>
+
+            <div>
+              <h2>Lector biométrico</h2>
+
+              <p>ESP32, huellas, checador y apertura segura del cajón.</p>
+            </div>
+          </div>
+
+          <div id="biometric-status" class="biometric-status-card">
+            <div class="settings-loading">
+              <span class="material-icons-round"> sync </span>
+
+              Consultando lector…
+            </div>
+          </div>
+
+          <div class="settings-panel">
+            <div class="settings-subtitle">Configuración del dispositivo</div>
+
+            <div class="grid">
+              <label>
+                Nombre del lector
+
+                <input
+                  id="bio-reader-name"
+                  maxlength="60"
+                  placeholder="Lector biométrico principal"
+                />
+              </label>
+
+              <label>
+                Tiempo entre aperturas
+
+                <div class="input-with-suffix">
+                  <input id="bio-cooldown" type="number" min="1" max="60" />
+
+                  <span> segundos </span>
+                </div>
+              </label>
+            </div>
+
+            <div class="settings-switch-list">
+              <label class="settings-switch-row">
+                <div>
+                  <strong> Lector habilitado </strong>
+
+                  <span> Permite utilizar el dispositivo biométrico. </span>
+                </div>
+
+                <input id="bio-enabled" type="checkbox" />
+              </label>
+
+              <label class="settings-switch-row">
+                <div>
+                  <strong> Usar como checador </strong>
+
+                  <span> Registra entradas y salidas mediante huella. </span>
+                </div>
+
+                <input id="bio-attendance" type="checkbox" />
+              </label>
+
+              <label class="settings-switch-row">
+                <div>
+                  <strong> Apertura de cajón </strong>
+
+                  <span> Permite solicitar la apertura utilizando una huella autorizada. </span>
+                </div>
+
+                <input id="bio-drawer" type="checkbox" />
+              </label>
+
+              <label class="settings-switch-row">
+                <div>
+                  <strong> Sólo administradores </strong>
+
+                  <span> Restringe la apertura del cajón a usuarios con rol administrador. </span>
+                </div>
+
+                <input id="bio-admin-only" type="checkbox" />
+              </label>
+            </div>
+
+            <div class="toolbar">
+              <button id="refresh-biometric" class="settings-secondary-btn">
+                <span class="material-icons-round"> refresh </span>
+
+                Actualizar estado
+              </button>
+
+              <button id="test-biometric-drawer" class="settings-secondary-btn">
+                <span class="material-icons-round"> point_of_sale </span>
+
+                Probar cajón
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================
+             WHATSAPP
+        ================================================== -->
+
+        <section class="settings-view" data-settings-view="whatsapp">
+          <div class="settings-section-header">
+            <div class="settings-section-icon">
+              <span class="material-icons-round"> chat </span>
+            </div>
+
+            <div>
+              <h2>WhatsApp</h2>
+
+              <p>Configura pedidos automáticos, horarios y atención.</p>
+            </div>
+          </div>
+
+          <div class="settings-panel">
+            <div class="settings-panel-toolbar">
+              <div>
+                <strong> Estado de conexión </strong>
+
+                <span id="bot-status"> Consultando conexión… </span>
+              </div>
+
+              <button id="refresh-bot" class="settings-secondary-btn">
+                <span class="material-icons-round"> refresh </span>
+
+                Actualizar
+              </button>
+            </div>
+
+            <div class="settings-switch-list">
+              <label class="settings-switch-row">
+                <div>
+                  <strong> Recibir pedidos nuevos </strong>
+
+                  <span> Permite al bot registrar pedidos nuevos desde WhatsApp. </span>
+                </div>
+
+                <input id="bot-enabled" type="checkbox" />
+              </label>
+            </div>
+
+            <div class="grid">
+              <label>
+                Apertura
+
+                <input id="bot-opens" type="time" />
+              </label>
+
+              <label>
+                Cierre
+
+                <input id="bot-closes" type="time" />
+              </label>
+
+              <label>
+                Días de descanso
+
+                <input id="bot-days" placeholder="2,3" />
+
+                <small> 0 = domingo · 6 = sábado </small>
+              </label>
+
+              <label>
+                Información de entrega
+
+                <textarea id="bot-delivery" rows="4"></textarea>
+              </label>
+
+              <label>
+                Instrucciones de transferencia
+                <textarea id="bot-transfer" rows="4"></textarea>
+              </label>
+              <div class="settings-info-box" style="grid-column:1/-1"><span class="material-icons-round">smart_toy</span><div><strong>IA automática</strong><span>Gemini y OpenAI funcionan con respaldo automático. Las claves se administran en el Centro de WhatsApp; no necesitas elegir proveedor ni modelo.</span><div style="margin-top:10px"><a class="settings-secondary-btn" href="/whatsapp.html" style="display:inline-flex;text-decoration:none">Abrir WhatsApp · CRM e inteligencia</a></div></div></div>
+              <label class="settings-switch-row" style="grid-column:1/-1"><div><strong>Transcribir notas de voz</strong><span>Convierte audios de clientes a texto cuando hay un proveedor de IA disponible.</span></div><input id="bot-voice" type="checkbox"></label>
+              <label class="settings-switch-row" style="grid-column:1/-1"><div><strong>Asistencia inteligente</strong><span>Usa IA sólo para comprender lenguaje natural.</span></div><input id="bot-ai-enabled" type="checkbox"></label>
+              <label class="settings-switch-row" style="grid-column:1/-1"><div><strong>Continuar si la IA falla</strong><span>Conserva menú, carrito, pedidos y atención humana aunque ambos proveedores fallen.</span></div><input id="bot-ai-fallback" type="checkbox"></label>
+            </div>
+
+            <div class="settings-info-box">
+              <span class="material-icons-round"> verified_user </span>
+
+              <div>
+                <strong> Confirmación de pagos </strong>
+
+                <span>
+                  Una imagen de comprobante enviada por WhatsApp nunca se considera automáticamente
+                  como pago verificado.
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================
+             PEDIDOS ENTRANTES
+        ================================================== -->
+
+        <section class="settings-view" data-settings-view="incoming">
+          <div class="settings-section-header">
+            <div class="settings-section-icon">
+              <span class="material-icons-round"> move_to_inbox </span>
+            </div>
+
+            <div>
+              <h2>Pedidos por aceptar</h2>
+
+              <p>Pedidos recibidos desde WhatsApp pendientes de confirmación.</p>
+            </div>
+          </div>
+
+          <div class="settings-panel">
+            <div class="settings-panel-toolbar">
+              <div>
+                <strong> Bandeja de entrada </strong>
+
+                <span> Los pedidos aceptados serán enviados al flujo normal de cocina. </span>
+              </div>
+
+              <button id="refresh-incoming" class="settings-secondary-btn">
+                <span class="material-icons-round"> refresh </span>
+
+                Actualizar
+              </button>
+            </div>
+
+            <div id="incoming"></div>
+          </div>
+        </section>
+
+        <!-- =================================================
+             COLA DE IMPRESION
+        ================================================== -->
+
+        <section class="settings-view" data-settings-view="printqueue">
+          <div class="settings-section-header">
+            <div class="settings-section-icon">
+              <span class="material-icons-round"> receipt_long </span>
+            </div>
+
+            <div>
+              <h2>Cola de impresión</h2>
+
+              <p>Consulta trabajos, errores y reintenta tickets.</p>
+            </div>
+          </div>
+
+          <div class="settings-panel">
+            <div class="settings-panel-toolbar">
+              <button id="refresh-jobs" class="settings-secondary-btn">
+                <span class="material-icons-round"> refresh </span>
+
+                Actualizar cola
+              </button>
+
+              <label class="compact-field">
+                Reasignar a
+
+                <select id="retry-printer"></select>
+              </label>
+            </div>
+
+            <div class="settings-info-box">
+              <span class="material-icons-round"> warning </span>
+
+              <div>
+                <strong> Evita duplicados </strong>
+
+                <span>
+                  “Enviado” significa que la conexión terminó correctamente, no necesariamente que
+                  el papel salió de la impresora.
+                </span>
+              </div>
+            </div>
+
+            <div id="jobs"></div>
+          </div>
+        </section>
+
+        <!-- =================================================
+             AUDITORIA
+        ================================================== -->
+
+        <section class="settings-view" data-settings-view="audit">
+          <div class="settings-section-header">
+            <div class="settings-section-icon">
+              <span class="material-icons-round"> history </span>
+            </div>
+
+            <div>
+              <h2>Actividad</h2>
+
+              <p>Registro de cambios y acciones importantes del sistema.</p>
+            </div>
+          </div>
+
+          <div class="settings-panel">
+            <div class="settings-panel-toolbar">
+              <div>
+                <strong> Auditoría </strong>
+
+                <span> Eventos recientes de dispositivos, catálogo y configuración. </span>
+              </div>
+
+              <button id="refresh-audit" class="settings-secondary-btn">
+                <span class="material-icons-round"> refresh </span>
+
+                Actualizar
+              </button>
+            </div>
+
+            <div class="toolbar">
+              <input id="audit-search" class="compact-field" placeholder="Buscar usuario, acción, ID o detalle..." />
+            </div>
+
+            <div id="audit" class="audit-list"></div>
+          </div>
+        </section>
+
+        <!-- =================================================
+             BOTON GUARDAR REAL
+        ================================================== -->
+
+        <div class="settings-save-footer">
+          <button id="save" class="settings-save-button">
+            <span class="material-icons-round"> save </span>
+
+            Guardar configuración
+          </button>
+
+          <span> Los cambios se aplican al sistema después de guardar. </span>
+        </div>
+      </main>
+    </div>
+
+    <!-- ===================================================
+         MODAL NUEVA PANTALLA KDS
+    ==================================================== -->
+      <!-- ===================================================
+           MODAL REGLA PREPARACION KDS
+      ==================================================== -->
+
+      <dialog
+        id="kds-rule-dialog"
+        class="settings-dialog"
+      >
+
+        <form
+          id="kds-rule-form"
+          method="dialog"
+          class="settings-dialog-body"
+        >
+
+          <input
+            id="kds-rule-id"
+            type="hidden"
+          />
+
+
+          <div class="dialog-header">
+
+            <div>
+
+              <h2>
+                Regla de preparación
+              </h2>
+
+              <p class="muted">
+                Configura qué debe preparar una estación
+                cuando se venda un producto.
+              </p>
+
+            </div>
+
+
+            <button
+              type="button"
+              id="kds-rule-close"
+              class="icon-btn"
+              aria-label="Cerrar"
+            >
+              <span class="material-icons-round">
+                close
+              </span>
+            </button>
+
+          </div>
+
+
+          <div class="kds-rule-wizard">
+
+            <label>
+              ¿Qué quieres hacer?
+
+              <select id="kds-rule-preset">
+
+                <option value="normal">
+                  Mostrar normalmente
+                </option>
+
+                <option value="derived">
+                  Generar otra preparación
+                </option>
+
+                <option value="aggregate">
+                  Agrupar varias preparaciones
+                </option>
+
+                <option value="omit">
+                  No mostrar en una estación
+                </option>
+
+                <option value="custom">
+                  Configuración avanzada
+                </option>
+
+              </select>
+            </label>
+
+
+            <div class="settings-info-box">
+
+              <span class="material-icons-round">
+                lightbulb
+              </span>
+
+              <div>
+
+                <strong>
+                  Ejemplo sencillo
+                </strong>
+
+                <span>
+                  Para Birria → Tortillas selecciona
+                  “Generar otra preparación”.
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="grid">
+
+            <label>
+              Nombre de esta regla
+
+              <input
+                id="kds-rule-name"
+                required
+                maxlength="120"
+                placeholder="Tortillas para birria"
+              />
+            </label>
+
+
+            <label>
+              Cuando se venda
+
+              <select id="kds-rule-source-type">
+
+                <option value="product">
+                  Un producto
+                </option>
+
+                <option value="category">
+                  Una categoría
+                </option>
+
+                <option value="group">
+                  Un grupo completo
+                </option>
+
+              </select>
+            </label>
+
+
+            <label>
+              Producto / categoría / grupo
+
+              <select
+                id="kds-rule-source-id"
+                required
+              ></select>
+            </label>
+
+
+            <label>
+              ¿Quién debe prepararlo?
+
+              <select
+                id="kds-rule-target-group"
+                required
+              ></select>
+            </label>
+
+          </div>
+
+
+          <div
+            id="kds-rule-output-box"
+            class="kds-rule-wizard-box"
+          >
+
+            <label>
+              Mostrar como
+
+              <input
+                id="kds-rule-output-label"
+                maxlength="160"
+                placeholder="Tortillas para birria"
+              />
+
+              <small class="muted">
+                Este es el texto que verá el cocinero.
+              </small>
+            </label>
+
+
+            <div class="grid">
+
+              <label>
+                Cómo calcular cantidad
+
+                <select id="kds-rule-quantity-mode">
+
+                  <option value="item_quantity">
+                    La misma cantidad
+                  </option>
+
+                  <option value="multiply">
+                    Multiplicar por
+                  </option>
+
+                  <option value="sum">
+                    Sumar cantidades
+                  </option>
+
+                  <option value="fixed">
+                    Siempre una cantidad fija
+                  </option>
+
+                </select>
+              </label>
+
+
+              <label>
+                Cantidad / multiplicador
+
+                <input
+                  id="kds-rule-quantity-value"
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  placeholder="Ej. 3"
+                />
+
+                <small class="muted">
+                  Ejemplo: 3 tortillas por cada birria.
+                </small>
+              </label>
+
+            </div>
+
+
+            <div
+              id="kds-rule-wizard-example"
+              class="kds-rule-live-example"
+            >
+              Selecciona las opciones para ver un ejemplo.
+            </div>
+
+          </div>
+
+
+          <details class="kds-rule-advanced">
+
+            <summary>
+              Opciones avanzadas
+            </summary>
+
+
+            <div class="grid">
+
+              <label>
+                Prioridad
+
+                <input
+                  id="kds-rule-priority"
+                  type="number"
+                  min="1"
+                  max="10000"
+                  value="100"
+                />
+
+                <small class="muted">
+                  Normalmente puedes dejarla en 100.
+                </small>
+              </label>
+
+
+              <label>
+                Acción técnica
+
+                <select id="kds-rule-mode">
+
+                  <option value="detail">
+                    Detalle
+                  </option>
+
+                  <option value="simplify">
+                    Simplificar
+                  </option>
+
+                  <option value="group">
+                    Agrupar
+                  </option>
+
+                  <option value="transform">
+                    Transformar
+                  </option>
+
+                  <option value="omit">
+                    Omitir
+                  </option>
+
+                </select>
+              </label>
+
+
+              <label>
+                Clave interna
+
+                <input
+                  id="kds-rule-output-key"
+                  maxlength="100"
+                  placeholder="Opcional"
+                />
+              </label>
+
+
+              <label>
+                Plantilla opcional
+
+                <input
+                  id="kds-rule-output-template"
+                  maxlength="255"
+                  placeholder="Opcional"
+                />
+              </label>
+
+            </div>
+
+
+            <div class="kds-rule-checks">
+
+              <label>
+                <input
+                  id="kds-rule-active"
+                  type="checkbox"
+                  checked
+                />
+                Regla activa
+              </label>
+
+              <label>
+                <input
+                  id="kds-rule-show-variant"
+                  type="checkbox"
+                  checked
+                />
+                Mostrar variante
+              </label>
+
+              <label>
+                <input
+                  id="kds-rule-show-modifiers"
+                  type="checkbox"
+                  checked
+                />
+                Mostrar modificadores
+              </label>
+
+              <label>
+                <input
+                  id="kds-rule-show-notes"
+                  type="checkbox"
+                  checked
+                />
+                Mostrar notas
+              </label>
+
+              <label>
+                <input
+                  id="kds-rule-show-course"
+                  type="checkbox"
+                  checked
+                />
+                Mostrar plato
+              </label>
+
+              <label>
+                <input
+                  id="kds-rule-hide-original"
+                  type="checkbox"
+                />
+                Ocultar preparación original
+              </label>
+
+            </div>
+
+          </details>
+
+
+          <div
+            class="toolbar"
+            style="justify-content:flex-end;margin-top:18px"
+          >
+
+            <button
+              type="button"
+              id="kds-rule-cancel"
+              class="settings-secondary-btn"
+            >
+              Cancelar
+            </button>
+
+
+            <button
+              type="submit"
+              class="settings-primary-btn"
+            >
+              <span class="material-icons-round">
+                save
+              </span>
+
+              Guardar regla
+            </button>
+
+          </div>
+
+        </form>
+
+      </dialog>
+
+
+      <dialog
+  id="kds-group-dialog"
+  class="settings-dialog"
+>
+  <form
+    id="kds-group-form"
+    method="dialog"
+    class="settings-dialog-body"
+  >
+
+    <div class="dialog-header">
+
+      <div>
+        <h2 id="kds-group-dialog-title">
+          Editar grupo
+        </h2>
+
+        <p class="muted">
+          Define qué categorías pertenecen
+          a este grupo de preparación.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        id="kds-group-close"
+        class="icon-btn"
+        aria-label="Cerrar"
+      >
+        <span class="material-icons-round">
+          close
+        </span>
+      </button>
+
+    </div>
+
+
+    <input
+      type="hidden"
+      id="kds-group-id"
+    />
+
+
+    <div class="grid">
+
+      <label>
+        Nombre
+
+        <input
+          id="kds-group-name"
+          required
+          maxlength="100"
+        />
+      </label>
+
+
+      <label class="toolbar">
+
+        <input
+          type="checkbox"
+          id="kds-group-active"
+        />
+
+        Grupo activo
+
+      </label>
+
+    </div>
+
+
+    <div
+      class="settings-panel"
+      style="margin-top:16px"
+    >
+
+      <div class="settings-panel-toolbar">
+
+        <div>
+          <strong>
+            Categorías
+          </strong>
+
+          <span>
+            Marca las categorías que
+            pertenecen a este grupo.
+          </span>
+        </div>
+
+        <input
+          id="kds-group-category-search"
+          type="search"
+          placeholder="Buscar categoría..."
+          autocomplete="off"
+        />
+
+      </div>
+
+
+      <div
+        id="kds-group-category-list"
+        class="kds-category-modal-list"
+      ></div>
+
+    </div>
+
+
+    <div
+      class="toolbar"
+      style="justify-content:flex-end;margin-top:18px"
+    >
+
+      <button
+        type="button"
+        id="kds-group-cancel"
+        class="settings-secondary-btn"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="settings-primary-btn"
+      >
+        <span class="material-icons-round">
+          save
+        </span>
+
+        Guardar cambios
+      </button>
+
+    </div>
+
+  </form>
+</dialog>
+
+
+<dialog id="kds-add-dialog" class="settings-dialog">
+      <form id="kds-add-form" method="dialog" class="settings-dialog-body">
+        <div class="dialog-header">
+          <div>
+            <h2>Nueva pantalla KDS</h2>
+            <p class="muted">Registra una Android TV o tablet con Pase · Cocina.</p>
+          </div>
+          <button type="button" id="kds-add-close" class="icon-btn" aria-label="Cerrar">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <div class="grid">
+          <label>Nombre<input id="kds-add-name" required maxlength="100" placeholder="Cocina principal" /></label>
+          <label>IP privada o .local<input id="kds-add-host" required maxlength="255" placeholder="192.168.1.50" /></label>
+          <label>Puerto<input id="kds-add-port" required type="number" min="1" max="65535" value="8080" /></label>
+          <label>Clave de vinculación<input id="kds-add-key" required type="password" autocomplete="new-password" placeholder="Clave mostrada por Pase · Cocina" /></label>
+          <div
+  class="settings-field"
+  style="grid-column:1/-1"
+>
+  <strong>
+    Grupos de preparación
+  </strong>
+
+  <small class="muted">
+    Selecciona uno o varios grupos.
+    Si no eliges ninguno,
+    esta pantalla recibirá todo lo
+    que Restaurant Suite le envíe.
+  </small>
+
+  <div
+    id="kds-add-groups"
+    class="grid"
+    style="margin-top:10px"
+  ></div>
+</div>
+        </div>
+        <div class="toolbar" style="justify-content:flex-end;margin-top:18px">
+          <button type="button" id="kds-add-cancel" class="settings-secondary-btn">Cancelar</button>
+          <button type="submit" class="settings-primary-btn"><span class="material-icons-round">add</span>Agregar pantalla</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- ===================================================
+         PREVIEW TICKET
+    ==================================================== -->
+
+    <dialog id="preview">
+      <div class="dialog-header">
+        <h2>Vista previa del ticket</h2>
+
+        <button id="close-preview" class="icon-btn">
+          <span class="material-icons-round"> close </span>
+        </button>
+      </div>
+
+      <pre id="preview-text"></pre>
+    </dialog>
+
+    <script src="/js/sidebar.js"></script>
+
+    <!-- ===================================================
+         NAVEGACION CONFIGURACION
+    ==================================================== -->
+
+    <script>
+      const SETTINGS_META = {
+        restaurant: {
+          title: 'Tu restaurante',
+          subtitle: 'Información general del negocio',
+        },
+
+        printers: {
+          title: 'Impresoras',
+          subtitle: 'Tickets, comandas y cajón de dinero',
+        },
+
+        kds: {
+          title: 'Pantallas de cocina',
+          subtitle: 'Pase · Cocina y grupos de preparación',
+        },
+
+        biometric: {
+          title: 'Lector biométrico',
+          subtitle: 'Huella, checador y seguridad',
+        },
+
+        whatsapp: {
+          title: 'WhatsApp',
+          subtitle: 'Pedidos y atención automática',
+        },
+
+        incoming: {
+          title: 'Pedidos por aceptar',
+          subtitle: 'Pedidos recibidos desde WhatsApp',
+        },
+
+        printqueue: {
+          title: 'Cola de impresión',
+          subtitle: 'Tickets y trabajos pendientes',
+        },
+
+        audit: {
+          title: 'Actividad',
+          subtitle: 'Auditoría del sistema',
+        },
+      };
+
+      function openSettingsHome(push = true) {
+        document
+          .querySelectorAll('.settings-view')
+          .forEach((view) => view.classList.remove('active'));
+
+        document.getElementById('settings-home').style.display = 'block';
+
+        document.getElementById('settings-back').style.display = 'none';
+
+        document.getElementById('settings-page-title').textContent = 'Configuración';
+
+        document.getElementById('settings-page-subtitle').textContent = 'Sistema e integraciones';
+
+        if (push) {
+          history.replaceState(null, '', '/settings.html');
+        }
+
+        document.querySelector('.settings-scroll')?.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+
+      function openSettingsView(id, title, subtitle, push = true) {
+        const target = document.querySelector(`[data-settings-view="${id}"]`);
+
+        if (!target) {
+          return;
+        }
+
+        document.getElementById('settings-home').style.display = 'none';
+
+        document
+          .querySelectorAll('.settings-view')
+          .forEach((view) => view.classList.remove('active'));
+
+        target.classList.add('active');
+
+        document.getElementById('settings-back').style.display = '';
+
+        const meta = SETTINGS_META[id] || {};
+
+        document.getElementById('settings-page-title').textContent =
+          title || meta.title || 'Configuración';
+
+        document.getElementById('settings-page-subtitle').textContent =
+          subtitle || meta.subtitle || '';
+
+        if (push) {
+          history.replaceState(null, '', `/settings.html#${id}`);
+        }
+
+        document.querySelector('.settings-scroll')?.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+
+      function openSettingsFromHash() {
+        const id = location.hash.replace('#', '').trim();
+
+        if (id && SETTINGS_META[id]) {
+          openSettingsView(id, SETTINGS_META[id].title, SETTINGS_META[id].subtitle, false);
+
+          return;
+        }
+
+        openSettingsHome(false);
+      }
+
+      window.addEventListener('hashchange', openSettingsFromHash);
+
+      document.addEventListener('DOMContentLoaded', openSettingsFromHash);
+    </script>
+  </body>
+</html>

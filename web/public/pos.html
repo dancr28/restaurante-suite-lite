@@ -1,0 +1,1415 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <script src="/js/session.js"></script>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>TPV - Los Compadres</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .order-card-deliv {
+        background: #1e2028;
+        border: 1px solid #333644;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+      .deliv-btn-group {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .checklist-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid #2d303e;
+        cursor: pointer;
+      }
+      .split-col {
+        flex: 1;
+        background: #16171d;
+        border: 1px solid #2e303b;
+        border-radius: 10px;
+        padding: 10px;
+        min-height: 250px;
+        max-height: 350px;
+        overflow-y: auto;
+      }
+      .split-item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #20222a;
+        padding: 8px;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        cursor: pointer;
+      }
+      .split-item-row:hover {
+        background: #2a2c38;
+      }
+
+      .menu-options-backdrop {
+        position: fixed;
+        inset: 0;
+        background: transparent;
+        z-index: 390;
+        display: none;
+      }
+      .menu-options-backdrop.open {
+        display: block;
+      }
+
+      /* Buscador compacto sin alterar el layout */
+      .pos-search-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .pos-search-input {
+        width: 100%;
+        background: #16171e;
+        border: 1px solid #2b2e3b;
+        border-radius: 8px;
+        padding: 7px 32px 7px 34px;
+        color: #fff;
+        font-size: 0.85rem;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.15s ease;
+      }
+      .pos-search-input:focus {
+        border-color: #1e88e5;
+      }
+      .pos-search-icon {
+        position: absolute;
+        left: 10px;
+        font-size: 18px;
+        color: #777;
+        pointer-events: none;
+      }
+      .pos-search-clear {
+        position: absolute;
+        right: 8px;
+        font-size: 16px;
+        color: #888;
+        cursor: pointer;
+        display: none;
+        user-select: none;
+      }
+    </style>
+    <link rel="stylesheet" href="/css/runtime-settings.css?v=4" />
+    <script src="/js/runtime-settings.js?v=4" defer></script>
+  </head>
+  <body>
+    <!-- Overlay Bloqueo de Caja -->
+    <div class="lock-overlay" id="bloqueo-turno-pos">
+      <span
+        class="material-icons-round"
+        style="font-size: 64px; color: #a8c7fa; margin-bottom: 12px"
+        >lock_clock</span
+      >
+      <h2 id="lock-titulo" style="margin: 0 0 6px 0">Caja Cerrada</h2>
+      <p
+        id="lock-msg"
+        style="color: #aaa; font-size: 0.9rem; max-width: 320px; margin-bottom: 20px"
+      >
+        Apertura de turno requerida.
+      </p>
+      <a
+        href="/shifts.html"
+        id="lock-btn-abrir-turno"
+        class="md-btn md-btn-primary"
+        style="
+          background: #1e88e5;
+          width: auto;
+          padding: 12px 24px;
+          text-decoration: none;
+          display: none;
+        "
+      >
+        Abrir Turno
+      </a>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div style="display: flex; align-items: center; gap: 8px">
+        <button class="icon-btn" id="btn-sidebar-menu" onclick="toggleSidebarGlobal()">
+          <span class="material-icons-round">menu</span>
+        </button>
+        <button
+          class="icon-btn"
+          id="btn-back-mesas"
+          style="display: none"
+          onclick="cerrarComandero()"
+        >
+          <span class="material-icons-round">arrow_back</span>
+        </button>
+        <span style="font-weight: 700; font-size: 1rem; color: #a8c7fa" id="txt-top-titulo"
+          >TPV</span
+        >
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px">
+        <span id="txt-usuario-tag" style="font-size: 0.8rem; color: #aaa">Mesero</span>
+        <button class="icon-btn" id="btn-tres-puntos" onclick="toggleMenuOpciones()">
+          <span class="material-icons-round">more_vert</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Backdrop Transparente -->
+    <div
+      class="menu-options-backdrop"
+      id="backdrop-menu-opciones"
+      onclick="cerrarMenuOpciones()"
+    ></div>
+
+    <!-- Menú 3 Puntos -->
+    <div class="menu-options-dropdown" id="menu-opciones">
+      <div
+        class="menu-opt-item"
+        id="opt-clear-ticket"
+        onclick="
+          limpiarComandaActual();
+          cerrarMenuOpciones();
+        "
+      >
+        <span class="material-icons-round">delete_outline</span> Clear ticket
+      </div>
+      <div
+        class="menu-opt-item"
+        id="opt-print-bill"
+        onclick="
+          imprimirPrecuentaTermica();
+          cerrarMenuOpciones();
+        "
+      >
+        <span class="material-icons-round">print</span> Print bill
+      </div>
+      <div
+        class="menu-opt-item"
+        id="opt-reprint-receipt"
+        onclick="
+          reimprimirTicketCliente();
+          cerrarMenuOpciones();
+        "
+      >
+        <span class="material-icons-round">receipt_long</span> Reimprimir ticket
+      </div>
+      <div
+        class="menu-opt-item"
+        id="opt-reprint-order"
+        onclick="
+          reimprimirComandaCocina();
+          cerrarMenuOpciones();
+        "
+      >
+        <span class="material-icons-round">soup_kitchen</span> Reimprimir comanda
+      </div>
+      <div
+        class="menu-opt-item"
+        id="opt-edit-ticket"
+        onclick="
+          abrirModalEditarTicket();
+          cerrarMenuOpciones();
+        "
+      >
+        <span class="material-icons-round">edit</span> Edit ticket
+      </div>
+      <div class="menu-opt-item" id="opt-asignar-cliente" onclick="abrirModalAsignarClientePedido(); cerrarMenuOpciones();">
+        <span class="material-icons-round">person_search</span> Asignar cliente
+      </div>
+      <div
+        class="menu-opt-item"
+        id="opt-asignar-ticket"
+        onclick="
+          abrirModalAsignarMesero();
+          cerrarMenuOpciones();
+        "
+      >
+        <span class="material-icons-round">person_add_alt_1</span> Assign ticket
+      </div>
+      <div
+        class="menu-opt-item"
+        id="opt-split-ticket"
+        onclick="
+          abrirModalSplitTicket();
+          cerrarMenuOpciones();
+        "
+      >
+        <span class="material-icons-round">call_split</span> Split ticket
+      </div>
+      <div
+        class="menu-opt-item"
+        id="opt-move-ticket"
+        onclick="
+          abrirModalMoverMesa();
+          cerrarMenuOpciones();
+        "
+      >
+        <span class="material-icons-round">drive_file_move</span> Move ticket
+      </div>
+      <div
+        class="menu-opt-item"
+        id="opt-open-cashdrawer"
+        onclick="
+          abrirCajonDirecto();
+          cerrarMenuOpciones();
+        "
+      >
+        <span class="material-icons-round">lock_open</span> Open cash drawer
+      </div>
+      <div
+        class="menu-opt-item"
+        onclick="
+          cargarDatos();
+          cerrarMenuOpciones();
+        "
+      >
+        <span class="material-icons-round">sync</span> Sync
+      </div>
+    </div>
+
+    <!-- Pestañas de Zona -->
+    <div class="floor-tabs" id="floor-nav">
+      <button class="cat-btn active" id="tab-btn-salon" onclick="cambiarZona('salon')">
+        Salón
+      </button>
+      <button class="cat-btn" id="tab-btn-takeout" onclick="cambiarZona('takeout')">
+        Para Llevar
+      </button>
+      <button class="cat-btn" id="tab-btn-delivery" onclick="cambiarZona('delivery')">
+        A Domicilio
+      </button>
+    </div>
+
+    <!-- VISTA 1: PLANO DE MESAS -->
+    <div id="vista-mesas">
+      <div id="panel-zona-salon">
+        <div class="fila-label">Fila 1 (1 - 5)</div>
+        <div class="fila-container" id="fila-1"></div>
+
+        <div class="fila-label">Fila 2 (6 - 10)</div>
+        <div class="fila-container" id="fila-2"></div>
+
+        <div class="fila-label">Fila 3 (11 - 14)</div>
+        <div class="fila-container" id="fila-3"></div>
+
+        <div class="fila-label">Mesas Personalizadas</div>
+        <div class="fila-container" id="fila-custom"></div>
+
+        <button
+          class="md-btn md-btn-outlined"
+          style="margin-top: 12px"
+          onclick="agregarMesaPersonalizadaPrompt()"
+        >
+          <span class="material-icons-round">add</span> + Mesa Personalizada
+        </button>
+      </div>
+
+      <!-- Panel Takeout / Delivery -->
+      <div id="panel-zona-delivery" style="display: none">
+        <div style="display: flex; gap: 10px; margin-bottom: 12px">
+          <button
+            class="md-btn md-btn-primary"
+            style="background: #1e88e5; flex: 1"
+            onclick="abrirModalNuevoPedidoEspecial()"
+          >
+            <span class="material-icons-round">add</span> Nueva Orden
+          </button>
+          <button
+            class="md-btn md-btn-outlined"
+            style="flex: 1"
+            onclick="abrirModalDirectorioClientes()"
+          >
+            <span class="material-icons-round">contacts</span> Directorio Clientes
+          </button>
+        </div>
+        <div id="lista-pedidos-especiales"></div>
+      </div>
+    </div>
+
+    <!-- VISTA 2: COMANDERO DIVIDIDO -->
+    <div id="vista-comandero">
+      <div class="comandero-main-content">
+        <!-- COLUMNA IZQUIERDA: PRODUCTOS -->
+        <div class="tablet-catalog-panel">
+          <!-- Buscador Discreto -->
+          <div class="pos-search-container">
+            <span class="material-icons-round pos-search-icon">search</span>
+            <input
+              type="text"
+              id="pos-search-input"
+              class="pos-search-input"
+              placeholder="Buscar platillo..."
+              oninput="filtrarProductosPorBusqueda(this.value)"
+            />
+            <span
+              class="material-icons-round pos-search-clear"
+              id="pos-search-clear-btn"
+              onclick="limpiarBusquedaProductos()"
+              >close</span
+            >
+          </div>
+
+          <div class="cat-bar" id="cat-bar"></div>
+          <div class="prod-grid" id="prod-grid"></div>
+        </div>
+
+        <!-- COLUMNA DERECHA / CAJÓN MÓVIL: COMANDA -->
+        <div id="ticket-overlay" onclick="toggleDrawerComanda()"></div>
+        <div class="ticket-drawer" id="ticket-drawer">
+          <div class="ticket-header">
+            <div>
+              <h3 style="margin: 0; font-size: 1.1rem; color: #fff" id="txt-mesa-activa">Mesa</h3>
+              <span style="font-size: 0.75rem; color: #888" id="txt-pedido-id">Comanda</span>
+            </div>
+            <button onclick="toggleDrawerComanda()" class="icon-btn mobile-only-item">
+              <span class="material-icons-round">expand_more</span>
+            </button>
+          </div>
+
+          <div class="ticket-body" id="ticket-body"></div>
+
+          <!-- FOOTER MÓVIL DENTRO DE LA COMANDA -->
+          <div class="ticket-footer-mobile">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                font-size: 1.3rem;
+                font-weight: 900;
+                margin-bottom: 4px;
+              "
+            >
+              <span style="color: #aaa">Total:</span>
+              <span id="txt-total-mobile" style="color: #6dd58c">$0.00</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px">
+              <button
+                class="cat-btn"
+                style="background: #252838; color: #a8c7fa; padding: 10px 4px; font-weight: 700"
+                onclick="siguientePlato()"
+              >
+                <span id="txt-btn-plato-mobile">Plato 1</span>
+              </button>
+              <button
+                class="cat-btn"
+                style="background: #282a36; color: #fff; padding: 10px 4px"
+                onclick="imprimirPrecuentaTermica()"
+              >
+                Precuenta
+              </button>
+              <button
+                class="md-btn md-btn-primary"
+                style="
+                  background: #1e88e5;
+                  grid-column: span 2;
+                  padding: 12px 4px;
+                  font-weight: 900;
+                  font-size: 1.05rem;
+                "
+                onclick="marcharCocina()"
+              >
+                GUARDAR
+              </button>
+              <button
+                class="md-btn md-btn-primary btn-action-cobrar"
+                style="
+                  background: #2e7d32;
+                  grid-column: span 2;
+                  padding: 12px 4px;
+                  font-weight: 900;
+                  font-size: 1rem;
+                "
+                onclick="abrirModalCobro()"
+              >
+                COBRAR
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARRA INFERIOR GLOBAL FIJA -->
+      <div class="pos-bottom-dock">
+        <div class="dock-left">
+          <button
+            class="cat-btn desktop-only-item"
+            style="
+              background: #252838;
+              color: #a8c7fa;
+              font-weight: 700;
+              padding: 10px 18px;
+              font-size: 0.95rem;
+            "
+            onclick="siguientePlato()"
+          >
+            <span class="material-icons-round" style="font-size: 18px; margin-right: 4px"
+              >restaurant</span
+            >
+            <span id="txt-btn-plato">Plato 1</span>
+          </button>
+
+          <div
+            class="mobile-only-item"
+            style="display: flex; flex-direction: column; justify-content: center"
+          >
+            <div
+              style="font-size: 1.25rem; font-weight: 900; color: #6dd58c; line-height: 1.1"
+              id="txt-bar-total-mob"
+            >
+              $0.00
+            </div>
+            <div style="font-size: 0.75rem; color: #888; margin-top: 2px" id="txt-bar-items-mob">
+              0 ítems
+            </div>
+          </div>
+
+          <div
+            class="desktop-only-item"
+            style="font-size: 0.85rem; color: #aaa; margin-left: 6px"
+            id="txt-bar-items"
+          >
+            0 ítems
+          </div>
+        </div>
+
+        <div class="dock-right">
+          <div class="desktop-only-item" style="text-align: right; margin-right: 8px">
+            <div style="font-size: 0.75rem; color: #888">Total:</div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: #6dd58c" id="txt-bar-total">
+              $0.00
+            </div>
+          </div>
+
+          <button
+            class="cat-btn desktop-only-item"
+            style="
+              background: #1e88e5;
+              color: #fff;
+              padding: 10px 22px;
+              font-size: 1rem;
+              font-weight: 900;
+            "
+            onclick="marcharCocina()"
+          >
+            GUARDAR
+          </button>
+          <button
+            class="cat-btn desktop-only-item"
+            style="background: #282a36; color: #fff; padding: 10px 18px; font-size: 0.95rem"
+            onclick="imprimirPrecuentaTermica()"
+          >
+            Precuenta
+          </button>
+          <button
+            class="cat-btn desktop-only-item btn-action-cobrar"
+            style="
+              background: #2e7d32;
+              color: #fff;
+              padding: 10px 22px;
+              font-size: 1rem;
+              font-weight: 900;
+            "
+            onclick="abrirModalCobro()"
+          >
+            COBRAR
+          </button>
+
+          <button
+            class="cat-btn mobile-only-item"
+            style="
+              background: #252838;
+              color: #a8c7fa;
+              padding: 8px 10px;
+              font-size: 0.8rem;
+              font-weight: 700;
+            "
+            onclick="siguientePlato()"
+          >
+            <span id="txt-btn-plato-dock-mob">Plato 1</span>
+          </button>
+          <button
+            class="cat-btn mobile-only-item"
+            style="
+              background: #252838;
+              color: #a8c7fa;
+              padding: 8px 10px;
+              font-size: 0.8rem;
+              font-weight: 700;
+            "
+            onclick="toggleDrawerComanda()"
+          >
+            <span class="material-icons-round" style="font-size: 16px; margin-right: 2px"
+              >receipt_long</span
+            >
+            Comanda
+          </button>
+          <button
+            class="cat-btn mobile-only-item"
+            style="
+              background: #1e88e5;
+              color: #fff;
+              padding: 8px 12px;
+              font-size: 0.85rem;
+              font-weight: 900;
+            "
+            onclick="marcharCocina()"
+          >
+            GUARDAR
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 1: SPLIT TICKET -->
+    <div class="modal-overlay" id="modal-split-ticket">
+      <div class="modal-box" style="max-width: 720px">
+        <h3 style="margin-top: 0; color: #a8c7fa">Split Ticket (Dividir Comanda por Artículos)</h3>
+        <p style="font-size: 0.8rem; color: #aaa; margin-top: 0">
+          Toca un artículo del ticket origen para transferirlo al nuevo sub-ticket.
+        </p>
+
+        <div style="display: flex; gap: 12px; margin: 14px 0">
+          <div class="split-col">
+            <strong style="color: #a8c7fa; font-size: 0.9rem" id="split-lbl-origen"
+              >Ticket Origen</strong
+            >
+            <div id="split-box-origen" style="margin-top: 8px"></div>
+          </div>
+
+          <div class="split-col">
+            <strong style="color: #6dd58c; font-size: 0.9rem" id="split-lbl-destino"
+              >Nuevo Sub-Ticket</strong
+            >
+            <div id="split-box-destino" style="margin-top: 8px"></div>
+          </div>
+        </div>
+
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+          "
+        >
+          <div style="font-size: 1rem; font-weight: 700">
+            <span>Sub-Total: </span>
+            <strong style="color: #6dd58c" id="split-txt-total-destino">$0.00</strong>
+          </div>
+          <div style="display: flex; gap: 8px">
+            <button
+              class="md-btn md-btn-primary btn-action-cobrar"
+              style="background: #2e7d32"
+              onclick="ejecutarCobroSubTicketInmediato()"
+            >
+              Cobrar Ahora
+            </button>
+            <button
+              class="md-btn md-btn-primary"
+              style="background: #1e88e5"
+              onclick="guardarSubTicketSeparado()"
+            >
+              Guardar Separado
+            </button>
+            <button
+              class="md-btn md-btn-outlined"
+              onclick="document.getElementById('modal-split-ticket').style.display = 'none'"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: COBRO NORMAL Y SPLIT PAYMENT MIXTO -->
+    <div class="modal-overlay" id="modal-cobro">
+      <div class="modal-box" style="max-width: 480px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3 style="margin:0;color:#6dd58c" id="cobro-modal-header">Cobro de Cuenta</h3>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+            <button class="cat-btn" id="btn-toggle-split-pay" style="padding:4px 10px;font-size:.75rem;background:#333;color:#a8c7fa" onclick="activarModoSplitPayment()">Dividir Pago (Mixto)</button>
+            <button class="cat-btn" id="btn-toggle-discount" style="padding:4px 10px;font-size:.75rem;background:#333;color:#ce93d8;display:inline-flex;align-items:center;gap:4px" onclick="togglePanelDescuentoCobro()"><span class="material-icons-round" style="font-size:16px">sell</span> Descuento</button>
+          </div>
+        </div>
+
+        <div
+          style="
+            background: #18191f;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 12px 0 10px 0;
+            border: 1px solid #333;
+          "
+        >
+          <div
+            style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #aaa"
+          >
+            <span>Total de la Cuenta:</span>
+            <strong style="color: #fff" id="cobro-total-original">$0.00</strong>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 1.3rem;
+              font-weight: 900;
+              margin-top: 6px;
+            "
+          >
+            <span id="lbl-saldo-estado">Monto a Liquidar:</span>
+            <span style="color: #6dd58c" id="cobro-total-display">$0.00</span>
+          </div>
+        </div>
+
+        <label style="font-size: 0.8rem; color: #aaa" id="lbl-paga-con-input"
+          >Monto a Pagar ($):</label
+        >
+        <input
+          type="number"
+          id="cobro-recibido"
+          class="input-field"
+          placeholder="0.00"
+          oninput="calcularCambioCobro()"
+          style="font-size: 1.3rem; font-weight: 900; color: #6dd58c"
+        />
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0">
+          <button
+            class="cat-btn active"
+            id="btn-pay-cash"
+            style="padding: 10px 0"
+            onclick="seleccionarMetodoCobro('efectivo', this)"
+          >
+            Efectivo
+          </button>
+          <!-- MP5_MANUAL_CARD_BUTTON_V1 -->
+          <button
+            class="cat-btn"
+            id="btn-pay-card-manual"
+            style="padding: 10px 0"
+            onclick="seleccionarMetodoCobro('tarjeta_manual', this)"
+          >
+            Tarjeta manual
+          </button>
+          <button
+            class="cat-btn"
+            id="btn-pay-card"
+            style="padding: 10px 0"
+            onclick="seleccionarMetodoCobro('tarjeta', this)"
+          >
+            Mercado Pago Point
+          </button>
+          <button
+            class="cat-btn"
+            id="btn-pay-trans"
+            style="padding: 10px 0"
+            onclick="seleccionarMetodoCobro('transferencia', this)"
+          >
+            Transf.
+          </button>
+        </div>
+
+        <div id="cobro-efectivo-rapido" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0"></div>
+        <div id="box-cobro-efectivo">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding: 8px 12px;
+              background: #1c1d22;
+              border-radius: 8px;
+              margin: 6px 0;
+              border: 1px solid #333;
+            "
+          >
+            <span>Cambio Estimado:</span>
+            <strong style="color: #6dd58c; font-size: 1.1rem" id="cobro-txt-cambio">$0.00</strong>
+          </div>
+        </div>
+
+        <div
+          id="box-pagos-parciales-historial"
+          style="margin-top: 8px; font-size: 0.85rem; color: #aaa"
+        ></div>
+
+        <div id="cobro-panel-descuento" style="display:none;margin:10px 0;padding:10px;background:#171820;border:1px solid #343746;border-radius:10px">
+          <label style="font-size:.75rem;color:#a8c7fa;font-weight:700">Aplicar descuento</label>
+          <select id="cobro-descuento" class="input-field" onchange="recalcularCobroConDescuento()"><option value="">Sin descuento</option></select>
+          <div id="cobro-descuento-empty" style="display:none;font-size:.75rem;color:#888;margin-top:5px">No hay descuentos activos.</div>
+          <div id="cobro-resumen-descuento" style="font-size:.8rem;color:#aaa;margin-top:5px"></div>
+        </div>
+        <div style="margin: 10px 0 6px 0">
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 0.85rem;
+              color: #a8c7fa;
+              cursor: pointer;
+            "
+          >
+            <input type="checkbox" id="chk-imprimir-recibo-cobro" />
+            <span>Imprimir ticket de venta</span>
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 14px">
+          <button
+            class="md-btn md-btn-primary"
+            style="background: #2e7d32; padding: 12px; font-weight: 900"
+            id="btn-ejecutar-cobro-main"
+            onclick="procesarPagoAbonoOCierre()"
+          >
+            CONTINUAR
+          </button>
+          <button
+            class="md-btn md-btn-outlined"
+            onclick="document.getElementById('modal-cobro').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 3: PANTALLA DE CONFIRMACIÓN DE CAMBIO / COMPROBANTE EFECTIVO -->
+    <div class="modal-overlay" id="modal-confirmacion-efectivo">
+      <div
+        class="modal-box"
+        style="max-width: 420px; text-align: center; border: 2px solid #6dd58c"
+      >
+        <span class="material-icons-round" style="font-size: 54px; color: #6dd58c"
+          >check_circle</span
+        >
+        <h2 style="margin: 6px 0; color: #fff; font-size: 1.4rem">Cobro en Efectivo</h2>
+        <p style="color: #aaa; font-size: 0.85rem; margin-top: 0">
+          Entregue el cambio al cliente y cierre el cajón.
+        </p>
+
+        <div
+          style="
+            background: #18191f;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 14px 0;
+            border: 1px solid #333;
+          "
+        >
+          <div
+            style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #aaa"
+          >
+            <span>Total a pagar:</span>
+            <strong style="color: #fff" id="conf-txt-total">$0.00</strong>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.9rem;
+              color: #aaa;
+              margin-top: 4px;
+            "
+          >
+            <span>Paga con:</span>
+            <strong style="color: #a8c7fa" id="conf-txt-pagacon">$0.00</strong>
+          </div>
+          <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #444">
+            <div style="font-size: 0.85rem; color: #6dd58c; font-weight: 700">
+              CAMBIO A ENTREGAR:
+            </div>
+            <div
+              style="
+                font-size: 2.2rem;
+                font-weight: 900;
+                color: #6dd58c;
+                line-height: 1.1;
+                margin-top: 4px;
+              "
+              id="conf-txt-cambio"
+            >
+              $0.00
+            </div>
+          </div>
+        </div>
+
+        <button
+          class="md-btn md-btn-primary"
+          style="background: #2e7d32; padding: 14px; font-size: 1.1rem; font-weight: 900"
+          onclick="cerrarConfirmacionCobro()"
+        >
+          <span class="material-icons-round" style="margin-right: 4px">done_all</span> CERRAR
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL ASIGNAR MESERO -->
+    <div class="modal-overlay" id="modal-asignar-mesero">
+      <div class="modal-box" style="max-width: 440px">
+        <h3 style="margin-top: 0; color: #a8c7fa">Asignar Meseros a Mesa</h3>
+        <label style="font-size: 0.8rem; color: #aaa">Mesero Principal:</label>
+        <input
+          type="text"
+          id="asig-mesero-principal"
+          class="input-field"
+          readonly
+          style="color: #888"
+        />
+
+        <label style="font-size: 0.8rem; color: #aaa; margin-top: 10px; display: block"
+          >Segundo Mesero Autorizado:</label
+        >
+        <select id="asig-mesero-secundario" class="input-field"></select>
+
+        <div style="display: flex; gap: 8px; margin-top: 16px">
+          <button class="md-btn md-btn-primary" onclick="guardarAsignacionMeseros()">
+            Guardar
+          </button>
+          <button
+            class="md-btn md-btn-outlined"
+            onclick="document.getElementById('modal-asignar-mesero').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL MOVER MESA -->
+    <div class="modal-overlay" id="modal-mover-mesa">
+      <div class="modal-box" style="max-width: 420px">
+        <h3 style="margin-top: 0; color: #a8c7fa">Mover Ticket a otra Mesa</h3>
+        <label style="font-size: 0.8rem; color: #aaa">Selecciona la nueva mesa destino:</label>
+        <select id="select-mover-mesa-destino" class="input-field" style="margin-top: 6px"></select>
+        <div style="display: flex; gap: 8px; margin-top: 16px">
+          <button class="md-btn md-btn-primary" onclick="ejecutarMoverMesa()">Mover Mesa</button>
+          <button
+            class="md-btn md-btn-outlined"
+            onclick="document.getElementById('modal-mover-mesa').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL EDITAR TICKET -->
+    <div class="modal-overlay" id="modal-editar-ticket">
+      <div class="modal-box" style="max-width: 440px">
+        <h3 style="margin-top: 0; color: #a8c7fa">Editar Datos de la Orden</h3>
+        <label style="font-size: 0.8rem; color: #aaa">Cliente:</label>
+        <input type="text" id="edit-ticket-cliente" class="input-field" placeholder="Cliente" />
+        <label style="font-size: 0.8rem; color: #aaa; margin-top: 10px; display: block"
+          >Notas:</label
+        >
+        <input type="text" id="edit-ticket-notas" class="input-field" placeholder="Notas de mesa" />
+        <div style="display: flex; gap: 8px; margin-top: 16px">
+          <button class="md-btn md-btn-primary" onclick="guardarEdicionTicket()">Guardar</button>
+          <button
+            class="md-btn md-btn-outlined"
+            onclick="document.getElementById('modal-editar-ticket').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL PRODUCTO -->
+    <div class="modal-overlay" id="modal-producto">
+      <div class="modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <h3 id="m-prod-nombre" style="margin: 0">Platillo</h3>
+          <button
+            id="btn-eliminar-item-modal"
+            class="cat-btn"
+            style="background: #e53935; color: #fff; display: none"
+            onclick="eliminarProductoDeComanda()"
+          >
+            <span class="material-icons-round" style="font-size: 16px">delete</span> Eliminar
+          </button>
+        </div>
+
+        <div style="margin: 8px 0">
+          <div
+            id="m-prod-precio-display"
+            style="font-size: 1.1rem; color: #6dd58c; font-weight: 700"
+          >
+            $0.00
+          </div>
+
+          <div id="m-box-precio-variable" style="display: none; margin-top: 6px">
+            <label style="font-size: 0.75rem; color: #a8c7fa; font-weight: 700"
+              >Nombre del Platillo / Extra:</label
+            >
+            <input
+              type="text"
+              id="m-prod-nombre-custom"
+              class="input-field"
+              placeholder="Ej. Salsa Extra, Corte fuera de menú..."
+              style="margin-bottom: 8px"
+            />
+
+            <label style="font-size: 0.75rem; color: #a8c7fa; font-weight: 700"
+              >Precio Personalizado ($):</label
+            >
+            <input
+              type="number"
+              id="m-prod-precio-custom"
+              class="input-field"
+              step="0.5"
+              placeholder="0.00"
+              style="font-size: 1.15rem; font-weight: 900; color: #6dd58c"
+            />
+          </div>
+        </div>
+
+        <div class="qty-picker">
+          <button class="qty-btn" onclick="ajustarCantidadModal(-1)">-</button>
+          <span class="qty-val" id="m-prod-qty">1</span>
+          <button class="qty-btn" onclick="ajustarCantidadModal(1)">+</button>
+        </div>
+
+        <div id="m-variantes-section" style="display: none; margin-bottom: 12px">
+          <label style="font-size: 0.75rem; color: #a8c7fa; font-weight: 700">Variante:</label>
+          <div
+            id="m-variantes-box"
+            style="margin-top: 4px; display: flex; gap: 6px; flex-wrap: wrap"
+          ></div>
+        </div>
+
+        <div id="m-modificadores-section" style="margin-bottom: 12px">
+          <label style="font-size: 0.75rem; color: #a8c7fa; font-weight: 700">Modificadores:</label>
+          <div id="m-modificadores-box" style="margin-top: 4px"></div>
+        </div>
+
+        <input
+          type="text"
+          id="m-prod-notas"
+          class="input-field"
+          placeholder="Notas de preparación..."
+        />
+        <div style="display: flex; gap: 8px; margin-top: 12px">
+          <button
+            id="btn-confirmar-modal-prod"
+            class="md-btn md-btn-primary"
+            onclick="confirmarAgregarProducto()"
+          >
+            Guardar
+          </button>
+          <button class="md-btn md-btn-outlined" style="margin: 0" onclick="cerrarModalProducto()">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL NUEVA ORDEN ESPECIAL -->
+    <div class="modal-overlay" id="modal-pedido-especial">
+      <div class="modal-box">
+        <h3 id="pe-modal-titulo" style="margin-top: 0">Nueva Orden</h3>
+
+        <div style="position: relative; margin-bottom: 10px">
+          <label style="font-size: 0.75rem; color: #a8c7fa; font-weight: 700"
+            >Buscar Cliente:</label
+          >
+          <input
+            type="text"
+            id="pe-buscar-crm"
+            class="input-field"
+            placeholder="Nombre o teléfono..."
+            oninput="buscarClienteCRM(this.value)"
+          />
+          <div
+            id="crm-sugerencias-box"
+            style="
+              display: none;
+              position: absolute;
+              top: 65px;
+              left: 0;
+              width: 100%;
+              background: #252733;
+              border: 1px solid #444;
+              border-radius: 8px;
+              z-index: 100;
+              max-height: 150px;
+              overflow-y: auto;
+            "
+          ></div>
+        </div>
+
+        <label style="font-size: 0.75rem; color: #aaa">Nombre:</label>
+        <input type="text" id="pe-nombre" class="input-field" placeholder="Cliente" />
+
+        <label style="font-size: 0.75rem; color: #aaa; margin-top: 6px; display: block"
+          >Teléfono:</label
+        >
+        <input type="text" id="pe-tel" class="input-field" placeholder="33xxxxxxxx" />
+
+        <div id="pe-campos-delivery">
+          <label style="font-size: 0.75rem; color: #aaa; margin-top: 6px; display: block"
+            >Dirección:</label
+          >
+          <input type="text" id="pe-dir" class="input-field" placeholder="Calle y colonia" />
+          <label style="font-size: 0.75rem; color: #aaa; margin-top: 6px; display: block"
+            >Referencias:</label
+          >
+          <input type="text" id="pe-ref" class="input-field" placeholder="Cruces" />
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 0.8rem;
+              color: #a8c7fa;
+              margin-top: 8px;
+            "
+          >
+            <input type="checkbox" id="pe-guardar-crm" checked /> Guardar en directorio
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 16px">
+          <button
+            class="md-btn md-btn-primary"
+            style="background: #1e88e5"
+            onclick="iniciarCapturaComandaEspecial()"
+          >
+            Tomar Pedido
+          </button>
+          <button
+            class="md-btn md-btn-outlined"
+            style="margin: 0"
+            onclick="document.getElementById('modal-pedido-especial').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DESPACHO 1 -->
+    <div class="modal-overlay" id="modal-despacho-step1">
+      <div class="modal-box">
+        <h3 style="margin-top: 0; color: #a8c7fa">Checklist de Preparación</h3>
+        <div
+          id="despacho-checklist-container"
+          style="max-height: 220px; overflow-y: auto; margin-bottom: 16px"
+        ></div>
+
+        <div style="display: flex; gap: 8px">
+          <button
+            class="md-btn md-btn-primary"
+            style="background: #f57c00; flex: 1"
+            onclick="pasarADespachoPaso2()"
+          >
+            Continuar a Pago <span class="material-icons-round">arrow_forward</span>
+          </button>
+          <button
+            class="md-btn md-btn-outlined"
+            onclick="document.getElementById('modal-despacho-step1').style.display = 'none'"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DESPACHO 2 -->
+    <div class="modal-overlay" id="modal-despacho-step2">
+      <div class="modal-box">
+        <h3 style="margin-top: 0; color: #6dd58c">Cobro de Entrega</h3>
+        <div
+          style="
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #6dd58c;
+            margin: 8px 0;
+            text-align: center;
+          "
+          id="despacho-total-display"
+        >
+          $0.00
+        </div>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin: 6px 0 10px 0;
+          "
+        >
+          <button
+            class="cat-btn active"
+            id="btn-desp-cash"
+            onclick="seleccionarMetodoDespacho('efectivo', this)"
+          >
+            Efectivo
+          </button>
+          <button
+            class="cat-btn"
+            id="btn-desp-card"
+            onclick="seleccionarMetodoDespacho('tarjeta', this)"
+          >
+            Tarjeta
+          </button>
+          <button
+            class="cat-btn"
+            id="btn-desp-trans"
+            onclick="seleccionarMetodoDespacho('transferencia', this)"
+          >
+            Transf.
+          </button>
+        </div>
+
+        <div id="box-despacho-efectivo">
+          <label style="font-size: 0.75rem; color: #aaa">Paga con ($):</label>
+          <input
+            type="number"
+            id="despacho-paga-con"
+            class="input-field"
+            placeholder="0.00"
+            oninput="calcularCambioDespacho()"
+          />
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding: 8px 12px;
+              background: #1c1d22;
+              border-radius: 8px;
+              margin-top: 8px;
+              border: 1px solid #333;
+            "
+          >
+            <span>Cambio:</span>
+            <strong style="color: #6dd58c; font-size: 1.1rem" id="despacho-txt-cambio"
+              >$0.00</strong
+            >
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 16px">
+          <button
+            class="md-btn md-btn-primary"
+            style="background: #2e7d32; flex: 1"
+            onclick="confirmarDespachoFinal()"
+          >
+            Confirmar e Imprimir
+          </button>
+          <button class="md-btn md-btn-outlined" onclick="volverADespachoPaso1()">Atrás</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DIRECTORIO CRM -->
+    <div class="modal-overlay" id="modal-directorio-crm">
+      <div class="modal-box" style="max-width: 600px">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+          "
+        >
+          <h3 style="margin: 0; color: #a8c7fa">Directorio de Clientes</h3>
+          <button
+            class="icon-btn"
+            onclick="document.getElementById('modal-directorio-crm').style.display = 'none'"
+          >
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <input
+          type="text"
+          id="dir-buscar-input"
+          class="input-field"
+          placeholder="Buscar por nombre o teléfono..."
+          oninput="cargarDirectorioCRM(this.value)"
+        />
+        <div
+          id="dir-lista-container"
+          style="max-height: 280px; overflow-y: auto; margin-top: 10px"
+        ></div>
+      </div>
+    </div>
+
+    
+<!-- MP_POINT_PRINT_POS_ALERT_UI_V1 -->
+<style>
+  #point-print-alert {
+    display: none;
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    width: min(420px, calc(100vw - 36px));
+    z-index: 10050;
+    background: #21191a;
+    border: 1px solid #8f4148;
+    border-left: 5px solid #ef5350;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 18px 50px rgba(0,0,0,.48);
+    color: #f4f4f4;
+  }
+
+  #point-print-alert .point-alert-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  #point-print-alert-title {
+    margin: 0;
+    font-size: 1.02rem;
+    font-weight: 900;
+    color: #ffb4ab;
+  }
+
+  #point-print-alert-meta {
+    margin-top: 5px;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  #point-print-alert-detail {
+    margin: 10px 0 0;
+    line-height: 1.4;
+    color: #d5c2c2;
+  }
+
+  #point-print-alert-close {
+    border: 0;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    padding: 2px;
+    line-height: 1;
+  }
+
+  #point-print-alert-close .material-icons-round {
+    font-size: 24px;
+  }
+
+  .point-alert-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+
+  #point-print-alert-reprint {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1px solid #ef5350;
+    border-radius: 10px;
+    background: #ef5350;
+    color: #fff;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  #point-print-alert-reprint:disabled {
+    opacity: .55;
+    cursor: wait;
+  }
+
+  @media (max-width: 620px) {
+    #point-print-alert {
+      right: 10px;
+      bottom: 10px;
+      width: calc(100vw - 20px);
+    }
+  }
+</style>
+
+<div
+  id="point-print-alert"
+  role="alert"
+  aria-live="assertive"
+>
+  <div class="point-alert-head">
+    <div>
+      <div id="point-print-alert-title">
+        Problema de impresión
+      </div>
+
+      <div id="point-print-alert-meta"></div>
+    </div>
+
+    <button
+      id="point-print-alert-close"
+      type="button"
+      aria-label="Cerrar"
+      onclick="cerrarAlertaImpresionPoint()"
+    >
+      <span class="material-icons-round">
+        close
+      </span>
+    </button>
+  </div>
+
+  <p id="point-print-alert-detail"></p>
+
+  <!-- MP_POINT_MANUAL_REPRINT_POS_UI_V1 -->
+  <div class="point-alert-actions">
+    <button
+      id="point-print-alert-reprint"
+      type="button"
+      onclick="reimprimirAlertaImpresionPoint()"
+    >
+      Reimprimir
+    </button>
+  </div>
+</div>
+
+<script src="/js/sidebar.js"></script>
+    <script src="/js/pos.js"></script>
+  <style>
+#modal-asignar-cliente-pedido .cliente-box{width:min(680px,94vw);max-height:90dvh;overflow:hidden;display:flex;flex-direction:column;background:#18191f;border:1px solid #30333d;border-radius:18px;padding:18px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+#modal-asignar-cliente-pedido .cliente-head,#modal-asignar-cliente-pedido .cliente-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#modal-asignar-cliente-pedido .cliente-tools{display:flex;gap:9px;margin-top:14px}
+#modal-asignar-cliente-pedido .cliente-tools .input-field{margin:0;flex:1}
+#modal-asignar-cliente-pedido .cliente-list{margin-top:12px;overflow:auto;max-height:48dvh;border:1px solid #2d303e;border-radius:13px;background:#121318}
+#modal-asignar-cliente-pedido .cliente-row{width:100%;border:0;border-bottom:1px solid #292c35;background:#18191f;color:#eee;padding:13px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;cursor:pointer}
+#modal-asignar-cliente-pedido .cliente-row:hover{background:#22252d}
+#modal-asignar-cliente-pedido .cliente-name{font-weight:800;color:#f2f3f5}
+#modal-asignar-cliente-pedido .cliente-meta{color:#9da3b2;font-size:.82rem;margin-top:4px}
+#modal-asignar-cliente-pedido .cliente-empty{padding:30px;text-align:center;color:#9298a8}
+#modal-asignar-cliente-pedido .cliente-actions{justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
+#modal-asignar-cliente-pedido .cliente-form{display:none;margin-top:12px;overflow:auto}
+#modal-asignar-cliente-pedido .cliente-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#modal-asignar-cliente-pedido .full{grid-column:1/-1}
+#modal-asignar-cliente-pedido label{display:block;color:#a8c7fa;font-size:.76rem;font-weight:800;margin-bottom:5px}
+#nuevo-cliente-error{min-height:20px;color:#ff9a8e;font-size:.84rem;margin-top:8px}
+@media(max-width:620px){#modal-asignar-cliente-pedido .cliente-tools{flex-direction:column}#modal-asignar-cliente-pedido .cliente-grid{grid-template-columns:1fr}#modal-asignar-cliente-pedido .full{grid-column:auto}}
+</style>
+<div id="modal-asignar-cliente-pedido" class="modal-overlay" style="display:none"><div class="cliente-box">
+<div class="cliente-head"><div><h3 style="margin:0;color:#a8c7fa">Asignar cliente</h3><small style="color:#9298a8">Busca uno existente o registra uno nuevo.</small></div><button class="icon-btn" onclick="cerrarModalAsignarClientePedido()"><span class="material-icons-round">close</span></button></div>
+<div id="cliente-selector-view"><div class="cliente-tools"><input id="buscar-cliente-pedido" class="input-field" placeholder="Buscar por nombre, teléfono o dirección" autocomplete="off"><button class="md-btn md-btn-primary" onclick="mostrarNuevoClientePedido()"><span class="material-icons-round">person_add</span> Nuevo cliente</button></div><div id="lista-clientes-pedido" class="cliente-list"></div><div class="cliente-actions"><button class="md-btn md-btn-outlined" onclick="quitarClientePedido()">Quitar cliente</button><button class="md-btn md-btn-outlined" onclick="cerrarModalAsignarClientePedido()">Cerrar</button></div></div>
+<form id="cliente-new-form" class="cliente-form" onsubmit="guardarNuevoClientePedido(event)"><div class="cliente-head"><div><b>Nuevo cliente</b><div style="color:#9298a8;font-size:.8rem">Se guardará en CRM y se asignará al pedido.</div></div><button type="button" class="md-btn md-btn-outlined" onclick="volverSelectorClientePedido()">Volver</button></div><div class="cliente-grid" style="margin-top:12px"><div><label>Nombre *</label><input id="nuevo-cliente-nombre" class="input-field" required maxlength="100"></div><div><label>Teléfono</label><input id="nuevo-cliente-telefono" class="input-field" inputmode="tel" maxlength="20"></div><div class="full"><label>Dirección</label><input id="nuevo-cliente-direccion" class="input-field"></div><div class="full"><label>Referencias</label><input id="nuevo-cliente-referencias" class="input-field"></div><div class="full"><label>Notas</label><textarea id="nuevo-cliente-notas" class="input-field" rows="2"></textarea></div></div><div id="nuevo-cliente-error"></div><div class="cliente-actions"><button type="button" class="md-btn md-btn-outlined" onclick="volverSelectorClientePedido()">Cancelar</button><button id="nuevo-cliente-guardar" class="md-btn md-btn-primary">Guardar y asignar</button></div></form>
+</div></div></body>
+</html>

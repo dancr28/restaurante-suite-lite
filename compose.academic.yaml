@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  restaurante-lite-db:
+    image: mariadb:10.11
+    container_name: restaurante-lite-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: restaurante_lite_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_lite_data:/var/lib/mysql
+
+  restaurante-lite-web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: restaurante-lite-web
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DEPLOYMENT_PROFILE=academic
+      - DB_HOST=restaurante-lite-db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=restaurante_lite_db
+    depends_on:
+      - restaurante-lite-db
+
+volumes:
+  mariadb_lite_data:

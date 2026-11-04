@@ -1,0 +1,64 @@
+@media (min-width: 1000px) {
+  .prod-grid {
+    grid-template-columns: repeat(var(--pos-columns, 4), minmax(0, 1fr)) !important;
+  }
+}
+html {
+  font-size: var(--settings-font, 16px);
+}
+html[data-theme='light'] {
+  color-scheme: light;
+  --bg-primary: #f4f6fa;
+  --bg-surface: #fff;
+  --bg-surface-elevated: #e5ebf5;
+  --bg-card: #fff;
+  --text-main: #172034;
+  --text-muted: #4b5566;
+  --border-color: #cbd5e1;
+  --primary: #174f96;
+}
+html[data-theme='light'] body {
+  background: #f4f6fa;
+  color: #172034;
+}
+html[data-theme='light']
+  :is(.settings-panel, .settings-menu-card, .settings-hero, .card, .top-bar, .product-card) {
+  background: #fff;
+  color: #172034;
+  border-color: #cbd5e1;
+}
+html[data-theme='light'] :is(input, select, textarea) {
+  background: #f4f6fa;
+  color: #172034;
+  border-color: #aebbd0;
+}
+html[data-density='compact'] :is(.settings-panel, .card) {
+  padding: 12px;
+}
+html[data-density='large'] :is(.settings-panel, .card) {
+  padding: 28px;
+}
+html[data-animations='false'] *,
+html[data-animations='false'] *::before,
+html[data-animations='false'] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+.ticket.settings-warning {
+  border: 3px solid #e4b34b;
+}
+.ticket.settings-critical {
+  border: 3px solid #ef6464;
+}
+.settings-panel fieldset {
+  border: 1px solid #485064;
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 0;
+}
+.settings-panel fieldset label {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+}
